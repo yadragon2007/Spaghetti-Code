@@ -1,1 +1,0 @@
-Earth texture: NASA Earth Observatory, Blue Marble Next Generation.

@@ -57,7 +57,7 @@
     "_globals": {
       "__id__": 7
     },
-    "_id": "5616d893-db11-4b91-aff3-5dfd8daa68b0"
+    "_id": "4897f68f-db5a-401e-bd9b-4ed02d3da9de"
   },
   {
     "__type__": "cc.Node",
@@ -102,7 +102,7 @@
       "y": -194.909,
       "z": 38.562
     },
-    "_id": "f3vID0PBhGQaq0QZb44E/K"
+    "_id": "deLYSsenpJjrNNrg73xiul"
   },
   {
     "__type__": "cc.DirectionalLight",
@@ -147,7 +147,7 @@
     "_shadowNear": 0.1,
     "_shadowFar": 10,
     "_shadowOrthoSize": 5,
-    "_id": "136bWNJxpERbZutX8Ue7fN"
+    "_id": "515OA/IqJKQZVNVmkRV/Kz"
   },
   {
     "__type__": "cc.StaticLightSettings",
@@ -198,7 +198,7 @@
       "y": -45,
       "z": 0
     },
-    "_id": "a0M6WFB75MnoewYq3DkhJA"
+    "_id": "72wU3IVbVFN5zL7Oj6g7Oe"
   },
   {
     "__type__": "cc.Camera",
@@ -244,7 +244,7 @@
     "_usePostProcess": false,
     "_cameraType": -1,
     "_trackingType": 0,
-    "_id": "0codwyx5tGS4wZ4i/Dp/qx"
+    "_id": "c0a4hUJh5HN4TgRemLEuuh"
   },
   {
     "__type__": "cc.SceneGlobals",
