@@ -1,13 +1,9 @@
-import * as PressureEarth from "../Pressure/PressureEarth";
-import * as TempEarth from "../Temperature/TempEarth";
-import { UniversalConstants } from "../../Constants/TS/index";
+import * as PressureEarth from "../Pressure/PressureEarth.ts";
+import * as TempEarth from "../Temperature/TempEarth.ts";
+import { UniversalConstants } from "../../Constants/TS/index.ts";
 
-export const airDensityEarth = (PressureAltitude, tempAtAltitudeInK) => {
+export const airDensityEarth = (PressureAltitude: number, tempAtAltitudeInK: number) => {
   const { CELSIUS_ZERO_POINT } = UniversalConstants;
-  const ZeroCelsitusInK = CELSIUS_ZERO_POINT.find(
-    (a) => (a.unit = "Thermodynamic"),
-  ).value;
-
 
   return PressureAltitude / (0.2869 * (tempAtAltitudeInK));
 };

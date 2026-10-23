@@ -1,4 +1,4 @@
-import { environments } from '../Havoc/environments';
+import { environments } from '../Havoc/environments.ts';
 
 export const Venus = {
   bulk_parameters: {

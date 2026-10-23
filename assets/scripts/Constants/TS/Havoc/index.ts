@@ -1,10 +1,10 @@
-import { metadata } from './metadata';
-import { missions } from './missions';
-import { environments } from './environments';
-import { trajectories } from './trajectories';
-import { spacecraft } from './spacecraft';
-import { science } from './science';
-import { materials } from './materials';
+import { metadata } from './metadata.ts';
+import { missions } from './missions.ts';
+import { environments } from './environments.ts';
+import { trajectories } from './trajectories.ts';
+import { spacecraft } from './spacecraft.ts';
+import { science } from './science.ts';
+import { materials } from './materials.ts';
 
 export const Havoc = {
   ...metadata,

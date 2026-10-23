@@ -1,10 +1,10 @@
-import { environments } from '../Havoc/environments';
+import { environments } from '../Havoc/environments.ts';
 
 export const Earth = {
   bulk_parameters: {
     mass_10_24_kg: 5.9722,
     volume_10_10_km3: 108.321,
-    equatorial_radius_km: 6378.137,
+    equatorial_radius_m: 6378137,
     polar_radius_km: 6356.752,
     volumetric_mean_radius_km: 6371.000,
     core_radius_km: 3485,
@@ -14,7 +14,7 @@ export const Earth = {
     surface_gravity_mean_m_per_s2: environments.planetary_environments.earth.surface.gravity_m_per_s2,
     surface_acceleration_eq_m_per_s2: 9.780,
     escape_velocity_km_per_s: 11.186,
-    gm_x_10_6_km3_per_s2: 0.3986,
+    gm_m3_per_s2: 0.3986e14,
     bond_albedo: 0.385
   },
   orbital_parameters: {
