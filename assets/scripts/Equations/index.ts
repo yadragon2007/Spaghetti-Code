@@ -17,8 +17,10 @@ export const earthAltitudeData = (Altitude) => {
 
   return {
     Altitude,
-    temperature_degC,
-    temperature_degK,
+    temperature: {
+      _degC:temperature_degC,
+      _degK:temperature_degK,
+    },
     pressure_kPa,
     airDensityEarth_kgPerCubicMeter,
   };
