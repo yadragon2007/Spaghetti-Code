@@ -14,7 +14,7 @@ export const Earth = {
     surface_gravity_mean_m_per_s2: environments.planetary_environments.earth.surface.gravity_m_per_s2,
     surface_acceleration_eq_m_per_s2: 9.780,
     escape_velocity_km_per_s: 11.186,
-    gm_m3_per_s2: 0.3986e14,
+    gm_m3_per_s2: 0.3986e15,
     bond_albedo: 0.385
   },
   orbital_parameters: {
