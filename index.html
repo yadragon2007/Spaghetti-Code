@@ -2,12 +2,74 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>spaghetti-code-react-test</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Spaghetti Code</title>
+
+    <!-- Tailwind (browser build, no install) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- three.js via import map -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+  <body class="m-0 flex min-h-screen justify-center bg-[#111]">
+    <!-- phone-width column. The "explore" class is added here when you press start -->
+    <main
+      id="app"
+      class="app relative min-h-screen w-full max-w-107.5 overflow-hidden"
+    >
+      <!-- MARS -->
+      <div class="mars-wrap relative">
+        <!-- Control Mars with classes here:
+             ""                 spins freely
+             "opportunity"      turns to Opportunity
+             "spirit"           turns to Spirit
+             "spirit still"     turns to Spirit and stays still -->
+        <div id="mars" class="h-100 w-full no-labels no-dots"></div>
+
+        <!-- rover labels are created here by main.js -->
+        <div id="labels"></div>
+
+        <!-- title overlay -->
+        <div id="intro-title" class="hero-text">
+          <h1>Spaghetti Code</h1>
+          <p>The Red Planet</p>
+        </div>
+      </div>
+
+      <!-- start button -->
+      <button
+        id="start"
+        class="btn intro-ui absolute bottom-16 left-1/2 -translate-x-1/2 uppercase"
+      >
+        explore
+      </button>
+
+      <!-- rover menu (appears after start) -->
+      <!-- rover carousel (appears after start) -->
+      <section id="menu" class="menu absolute inset-x-0 top-70 px-2">
+        <div class="relative">
+          <div id="track" class="track"></div>
+          <button id="prev" class="arrow left-0" aria-label="Previous">
+            ‹
+          </button>
+          <button id="next" class="arrow right-0" aria-label="Next">›</button>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/scripts/main.js"></script>
+    <script type="module" src="/scripts/carousel.js"></script>
   </body>
 </html>

@@ -1,0 +1,179 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton+SC&family=Bungee+Hairline&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap");
+
+body {
+  background-image: url("/images/starsBG.jpg"); /* optional: your star background */
+  background-size: cover;
+}
+.app {
+  background-color: #000;
+  background-image: url("/images/starsBG.jpg"); /* optional: your star background */
+  background-size: cover;
+  background-position: center;
+  max-width: 430px;      /* don't rely on the Tailwind class */
+  width: 100%;
+}
+
+
+/* ---------- Mars wrapper: animated with transform ---------- */
+.mars-wrap {
+  transition: transform 0.8s ease;
+}
+.explore .mars-wrap {
+  transform: translateY(-40px) scale(0.6);
+}
+
+/* ---------- title overlay ---------- */
+.hero-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  pointer-events: none;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+.hero-text h1 {
+  margin: 0;
+  font-size: clamp(40px, 12vw, 56px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+
+  font-family: "Anton SC", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.hero-text p {
+  margin: 4px 0 0;
+  opacity: 0.85;
+
+  font-family: "Bungee Hairline", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #ff37006c;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    filter 0.2s,
+    opacity 0.4s;
+}
+
+/* ---------- stage switching ---------- */
+.menu {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+.explore .hero-text,
+.explore .intro-ui {
+  opacity: 0;
+  pointer-events: none;
+}
+.explore .hero-text {
+  transform: translateY(-10px);
+}
+.explore .menu {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  transition:
+    opacity 0.6s ease 0.6s,
+    transform 0.6s ease 0.6s; /* appears after Mars settles */
+}
+.rover.active {
+  outline: 2px solid #00e5ff;
+}
+
+/* ---------- marker labels ---------- */
+#mars.no-labels + #labels { display: none; }
+#labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.mars-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid #00e5ff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+/* ---------- rover carousel ---------- */
+
+.track {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.track::-webkit-scrollbar { display: none; }
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;                 /* stops content from widening the slide */
+  scroll-snap-align: center;
+  text-align: center;
+  color: white;
+}
+
+.slide-model {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+/* the canvas fills the box and can't affect the layout */
+.slide-model canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.slide-title { margin: -8px 0 0; font-size: 20px; font-weight: 600; }
+.slide-title {
+  margin: -8px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 30px;
+  cursor: pointer;
+  transition: color 0.2s, opacity 0.2s;
+}
+.arrow:hover { color: white; }
+.arrow:disabled { opacity: 0.3; cursor: default; }
