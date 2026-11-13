@@ -11,7 +11,8 @@ body {
   padding: 5px 10px;
   border-radius: 5px;
   color: var(--accent);
-  background: var(--accent-bg);
+  background-image: url("images/starsBG.jpg");
+  background-size: contain;
   border: 2px solid transparent;
   transition: border-color 0.3s;
   margin-bottom: 24px;
@@ -29,14 +30,17 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  background: #111; /* the area outside the "phone" */
+  background-image: url("images/starsBG.jpg");
+  background-size: contain;
 }
 
 .app {
   width: 100%;
   max-width: 430px; /* phone width */
   min-height: 100vh;
-  background: #16181d; /* your page background */
+  background: #000; /* your page background */
+  background-image: url("images/starsBG.jpg");
+  background-size: contain;
   overflow-x: hidden;
 }
 

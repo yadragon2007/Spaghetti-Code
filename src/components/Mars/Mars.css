@@ -1,0 +1,14 @@
+.mars-label {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;               /* pill shape */
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid #ff3700;
+  box-shadow: 0 0 12px #ff3700;  /* glow */
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  user-select: none;
+}
