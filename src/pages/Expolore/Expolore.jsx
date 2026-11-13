@@ -1,11 +1,19 @@
 import Mars from "../../components/Mars/Mars";
 import Button from "../../components/Btn/Button";
-import "./Home.css";
+import Carousel from "../../components/Carousel/Carousel";
 
-export default function Home() {
+const rovers = [
+  {
+    id: "opportunity",
+    name: "Opportunity",
+    Model: "models/opportunity.glb",
+  },
+  { id: "spirit", name: "Spirit", Model: "models/opportunity.glb" },
+];
+export default function Expolore() {
   return (
     <>
-      <div className="conainter">
+      <div className="conainter-css">
         <div className="hero">
           <Mars
             className="Mars"
@@ -14,14 +22,8 @@ export default function Home() {
               { name: "Spirit", lat: -14.6, lon: 175.5 },
             ]}
           />
-
-          <div className="hero-text">
-            <h1>Spaghetti Code</h1>
-            <p>The Twin Rovers</p>
-          </div>
         </div>
-
-        <Button>Start</Button>
+        <Carousel items={rovers} />
       </div>
     </>
   );

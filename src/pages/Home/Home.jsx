@@ -5,14 +5,10 @@ import "./Home.css";
 export default function Home() {
   return (
     <>
-      <div className="conainter">
+      <div className="conainter-css">
         <div className="hero">
           <Mars
             className="Mars"
-            markers={[
-              { name: "Opportunity", lat: -1.9462, lon: 354.4734 },
-              { name: "Spirit", lat: -14.6, lon: 175.5 },
-            ]}
           />
 
           <div className="hero-text">

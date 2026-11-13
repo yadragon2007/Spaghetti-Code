@@ -1,0 +1,40 @@
+.conainter-css{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.hero {
+  position: relative;   /* makes the text position relative to this box */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-text {
+  position: absolute;
+  inset: 0;                 /* cover the whole Mars area */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;  /* vertical center; see the variations below */
+  text-align: center;
+  color: white;
+  pointer-events: none;     /* clicks and drags pass through to Mars */
+  z-index: 1000;
+}
+
+.hero-text h1 {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6); /* keeps it readable on the planet */
+}
+
+.hero-text p {
+  margin: 4px 0;
+  font-size: 16px;
+  opacity: 0.85;
+}
