@@ -1,5 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Anton+SC&family=Bungee+Hairline&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap");
 
+:root {
+  --accent: #ff5a2c; /* Mars orange-red */
+  --accent-glow: rgba(255, 90, 44, 0.5);
+}
+
 body {
   background-image: url("/images/starsBG.jpg"); /* optional: your star background */
   background-size: cover;
@@ -9,10 +14,9 @@ body {
   background-image: url("/images/starsBG.jpg"); /* optional: your star background */
   background-size: cover;
   background-position: center;
-  max-width: 430px;      /* don't rely on the Tailwind class */
+  max-width: 430px; /* don't rely on the Tailwind class */
   width: 100%;
 }
-
 
 /* ---------- Mars wrapper: animated with transform ---------- */
 .mars-wrap {
@@ -93,11 +97,13 @@ body {
     transform 0.6s ease 0.6s; /* appears after Mars settles */
 }
 .rover.active {
-  outline: 2px solid #00e5ff;
+  outline: 2px solid var(--accent);
 }
 
 /* ---------- marker labels ---------- */
-#mars.no-labels + #labels { display: none; }
+#mars.no-labels + #labels {
+  display: none;
+}
 #labels {
   position: absolute;
   inset: 0;
@@ -110,8 +116,8 @@ body {
   padding: 4px 10px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.55);
-  border: 1px solid #00e5ff;
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
   color: white;
   font-size: 12px;
   font-weight: 600;
@@ -130,12 +136,14 @@ body {
   scroll-behavior: smooth;
   scrollbar-width: none;
 }
-.track::-webkit-scrollbar { display: none; }
+.track::-webkit-scrollbar {
+  display: none;
+}
 
 .slide {
   flex: 0 0 100%;
   width: 100%;
-  min-width: 0;                 /* stops content from widening the slide */
+  min-width: 0; /* stops content from widening the slide */
   scroll-snap-align: center;
   text-align: center;
   color: white;
@@ -156,11 +164,54 @@ body {
   display: block;
 }
 
-.slide-title { margin: -8px 0 0; font-size: 20px; font-weight: 600; }
 .slide-title {
   margin: -8px 0 0;
   font-size: 20px;
   font-weight: 600;
+}
+.slide-title {
+  margin: -8px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+/* clickable */
+.slide.clickable {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.slide.clickable:hover .slide-title,
+.slide.clickable:focus-visible .slide-title {
+  color: var(--accent);
+}
+.slide.clickable:active {
+  transform: scale(0.98);
+}
+.slide.clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+/* disabled */
+.slide.disabled {
+  cursor: not-allowed;
+}
+.slide.disabled .slide-model {
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.5;
+}
+.slide.disabled .slide-title {
+  opacity: 0.5;
+}
+
+.slide-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .arrow {
@@ -173,7 +224,14 @@ body {
   color: rgba(255, 255, 255, 0.7);
   font-size: 30px;
   cursor: pointer;
-  transition: color 0.2s, opacity 0.2s;
+  transition:
+    color 0.2s,
+    opacity 0.2s;
 }
-.arrow:hover { color: white; }
-.arrow:disabled { opacity: 0.3; cursor: default; }
+.arrow:hover {
+  color: white;
+}
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

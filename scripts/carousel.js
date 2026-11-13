@@ -2,26 +2,52 @@ import { createViewer } from "./viewer.js";
 
 /* ---------- data: id must match a key in ROVERS in main.js ---------- */
 const rovers = [
-  { id: "opportunity", name: "Opportunity", Model: "../models/opportunity.glb" },
-  { id: "spirit", name: "Spirit", Model: "../models/opportunity.glb" },
+  {
+    id: "opportunity",
+    name: "Opportunity",
+    Model: "../models/opportunity.glb",
+    enabled: true,
+  },
+  {
+    id: "spirit",
+    name: "Spirit",
+    Model: "../models/opportunity.glb",
+    enabled: false,
+  },
 ];
 
-const app   = document.getElementById("app");
-const mars  = document.getElementById("mars");
+const app = document.getElementById("app");
+const mars = document.getElementById("mars");
 const track = document.getElementById("track");
-const prev  = document.getElementById("prev");
-const next  = document.getElementById("next");
+const prev = document.getElementById("prev");
+const next = document.getElementById("next");
 
 let active = 0;
 
 /* ---------- build the slides ---------- */
 rovers.forEach((rover) => {
   const slide = document.createElement("div");
-  slide.className = "slide";
+  slide.className = "slide " + (rover.enabled ? "clickable" : "disabled");
   slide.innerHTML = `
     <div class="slide-model"></div>
     <h3 class="slide-title">${rover.name}</h3>
+    ${rover.enabled ? "" : '<span class="slide-badge">Coming soon</span>'}
   `;
+
+  if (rover.enabled) {
+    slide.tabIndex = 0;
+    slide.setAttribute("role", "button");
+    slide.addEventListener("click", () => selectRover(rover));
+    slide.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectRover(rover);
+      }
+    });
+  } else {
+    slide.setAttribute("aria-disabled", "true");
+  }
+
   track.appendChild(slide);
 
   createViewer(slide.querySelector(".slide-model"), rover.Model, {
@@ -33,6 +59,13 @@ rovers.forEach((rover) => {
   });
 });
 
+/* what happens when an enabled rover is clicked */
+function selectRover(rover) {
+  console.log("Selected:", rover.id);
+  window.dispatchEvent(new CustomEvent("rover-select", { detail: rover }));
+  // e.g. location.href = `/rover.html?id=${rover.id}`;
+}
+
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {
   rovers.forEach((r) => mars.classList.remove(r.id));
@@ -41,9 +74,9 @@ function clearRoverClasses() {
 function syncMars() {
   clearRoverClasses();
   if (app.classList.contains("explore")) {
-    mars.classList.add(rovers[active].id);   // Mars turns to this rover
+    mars.classList.add(rovers[active].id); // Mars turns to this rover
   }
-} 
+}
 
 // intro = Mars spins freely; explore = Mars follows the carousel
 new MutationObserver(syncMars).observe(app, {

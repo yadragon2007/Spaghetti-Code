@@ -20,8 +20,8 @@ const ROVER_KEYS = Object.keys(ROVERS);
 /* =====================================================
    STATE (declared first so everything below can use it)
 ===================================================== */
-let focusAngle = null;
 let paused = false;
+let dragging = false; // user is orbiting the camera
 let activeKey = null; // rover currently selected by class
 let showLabels = true;
 let showDots = true;
@@ -59,6 +59,8 @@ controls.enableZoom = false;
 controls.enablePan = false;
 controls.minPolarAngle = Math.PI / 2; // lock vertical orbit
 controls.maxPolarAngle = Math.PI / 2;
+controls.addEventListener("start", () => (dragging = true));
+controls.addEventListener("end", () => (dragging = false));
 
 function resize() {
   const w = container.clientWidth;
@@ -116,7 +118,7 @@ function addMarkers() {
 
     const dot = new THREE.Mesh(
       new THREE.SphereGeometry(radius * 0.02, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0x00e5ff }),
+      new THREE.MeshBasicMaterial({ color: 0xff5a2c }),
     );
     dot.position
       .set(
@@ -179,10 +181,6 @@ function applyClasses() {
   const key = ROVER_KEYS.find((k) => classes.includes(k)) ?? null;
   activeKey = key;
 
-  focusAngle = key
-    ? -THREE.MathUtils.degToRad(ROVERS[key].lon + LON_OFFSET)
-    : null;
-
   paused = classes.includes("still");
   showLabels = !classes.includes("no-labels");
   showDots = !classes.includes("no-dots");
@@ -206,12 +204,16 @@ const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.1); // avoid jumps after tab switches
 
-  if (focusAngle !== null) {
-    // shortest way round, eased
-    let diff = focusAngle - spin.rotation.y;
-    diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+  const focusMarker = activeKey && markers.find((m) => m.key === activeKey);
+
+  if (focusMarker && !dragging) {
+    // measure where the dot really is in the world, then turn it toward the camera
+    focusMarker.dot.getWorldPosition(_pos);
+    const dotAzimuth = Math.atan2(_pos.x, _pos.z);
+    let diff = controls.getAzimuthalAngle() - dotAzimuth;
+    diff = Math.atan2(Math.sin(diff), Math.cos(diff)); // shortest way round
     spin.rotation.y += diff * Math.min(1, dt * 4);
-  } else if (!paused) {
+  } else if (!paused && !(activeKey && dragging)) {
     spin.rotation.y += dt * SPEED;
   }
 
