@@ -1,14 +1,48 @@
-.mars-label {
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
+.mars-pin {
+  position: relative;
+  max-width: 90px;                          /* caps the length so it can't run off-screen */
   padding: 4px 10px;
-  border-radius: 999px;               /* pill shape */
-  background: rgba(0, 0, 0, 0.55);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.7);
   border: 1px solid #ff3700;
-  box-shadow: 0 0 12px #ff3700;  /* glow */
+  box-shadow: 0 0 10px rgba(255, 55, 0, 0.7);
   backdrop-filter: blur(4px);
-  white-space: nowrap;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   user-select: none;
+
+  /* tip of the pin lands on the marker point */
+  transform: translate(-50%, calc(-100% - 7px));
+}
+
+/* long names get "Opportuni…" instead of overflowing */
+.mars-pin__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* the pointer tail (outer border) */
+.mars-pin::before,
+.mars-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-style: solid;
+  border-color: transparent;
+}
+.mars-pin::before {
+  top: 100%;
+  border-width: 7px 6px 0 6px;
+  border-top-color: #ff3700;
+}
+/* the pointer tail (fill) */
+.mars-pin::after {
+  top: calc(100% - 1px);
+  border-width: 6px 5px 0 5px;
+  border-top-color: rgba(0, 0, 0, 0.9);
 }

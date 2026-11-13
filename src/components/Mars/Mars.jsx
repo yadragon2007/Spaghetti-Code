@@ -22,26 +22,29 @@ function Marker({ lat, lon, name, radius, center, lonOffset, planet }) {
     () => toPosition(lat, lon, radius, center, lonOffset),
     [lat, lon, radius, center, lonOffset],
   );
-  // label floats slightly above the surface, along the outward direction
-  const labelPos = useMemo(
-    () => pos.clone().sub(center).multiplyScalar(1.12).add(center),
+  // sits just above the surface so occlusion doesn't flicker on the dot itself
+  const pinPos = useMemo(
+    () => pos.clone().sub(center).multiplyScalar(1.02).add(center),
     [pos, center],
   );
 
   return (
     <>
+      {/* small dot at the exact location */}
       <mesh position={pos}>
-        <sphereGeometry args={[radius * 0.02, 16, 16]} />
+        <sphereGeometry args={[radius * 0.015, 16, 16]} />
         <meshBasicMaterial color="#ff3700" />
       </mesh>
 
+      {/* no `center` prop: the CSS anchors the pin's tip to this point */}
       <Html
-        position={labelPos}
-        center
+        position={pinPos}
         occlude={[{ current: planet }]}
         style={{ pointerEvents: "none" }}
       >
-        <div className="mars-label">{name}</div>
+        <div className="mars-pin" title={name}>
+          <span className="mars-pin__text">{name}</span>
+        </div>
       </Html>
     </>
   );
@@ -116,7 +119,7 @@ export default function Mars({
         <directionalLight position={[5, 3, 5]} intensity={2.5} />
 
         <Suspense fallback={null}>
-          <Stage environment={null} shadows={false} intensity={0} adjustCamera>
+          <Stage environment={null} shadows={false} intensity={0} adjustCamera={1.29}>
             <MarsModel speed={speed} markers={markers} lonOffset={lonOffset} />
           </Stage>
         </Suspense>
