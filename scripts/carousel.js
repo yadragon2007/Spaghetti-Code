@@ -1,4 +1,5 @@
 import { createViewer } from "./viewer.js";
+import { createRocketPuzzle } from "./rocket.js";
 
 /* ---------- data: id must match a key in ROVERS in main.js ---------- */
 const rovers = [
@@ -97,8 +98,86 @@ function selectRover(rover) {
 }
 
 document.getElementById("continue").addEventListener("click", () => {
-  console.log("continue");
-  // e.g. location.href = "/chapter-1.html";
+  app.classList.add("chapter2");
+});
+
+let chapter3Started = false;
+
+document.getElementById("continue2").addEventListener("click", () => {
+  if (chapter3Started) return;
+  chapter3Started = true;
+
+  // Mars on the left (spinning)
+  createViewer(document.getElementById("duoMars"), "/models/Mars.glb", {
+    rotate: true,
+    speed: 0.35,
+    elevation: 10,
+    azimuth: 0,
+    headLight: 2,
+    studio: 0.5,
+  });
+
+  // the other object on the right (placeholder model)
+  createViewer(document.getElementById("duoObject"), "../models/Mars.glb", {
+    rotate: true,
+    speed: 0.5,
+    elevation: 20,
+    azimuth: 30,
+    headLight: 3,
+    studio: 1.5,
+  });
+
+  app.classList.add("chapter3");
+});
+
+let chapter4Started = false;
+
+document.getElementById("continue3").addEventListener("click", () => {
+  if (chapter4Started) return;
+  chapter4Started = true;
+
+  createViewer(
+    document.getElementById("c4Rover"),
+    "../models/opportunity.glb",
+    {
+      rotate: true,
+      speed: 0.35,
+      elevation: 20,
+      azimuth: 40,
+      headLight: 3,
+      studio: 1.5,
+    },
+  );
+
+  app.classList.add("chapter4");
+});
+
+let chapter5Started = false;
+
+document.getElementById("continue4").addEventListener("click", () => {
+  if (chapter5Started) return;
+  chapter5Started = true;
+
+  createRocketPuzzle(document.getElementById("c5Stage"), {
+    rocketSrc: "../models/rocket.glb", // placeholder: the large rocket
+    payloadSrc: "../models/mars.glb", // placeholder: the part to drag
+    onComplete: () => {
+      const text = document.getElementById("c5Text");
+      text.classList.add("swapping"); // fade out
+      setTimeout(() => {
+        text.textContent = "Let's launch";
+        text.classList.remove("swapping"); // fade back in
+      }, 350);
+      app.classList.add("rocket-done"); // Continue button appears
+    },
+  });
+
+  app.classList.add("chapter5");
+});
+
+document.getElementById("continue5").addEventListener("click", () => {
+  console.log("continue 5");
+  // e.g. app.classList.add("chapter6");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */

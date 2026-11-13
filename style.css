@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Anton+SC&family=Bungee+Hairline&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap");
-
+@import url("https://fonts.googleapis.com/css2?family=Anton+SC&family=Bungee+Hairline&family=Patrick+Hand&family=Playwrite+GB+S:ital,wght@0,100..400;1,100..400&display=swap");
 :root {
   --accent: #ff5a2c; /* Mars orange-red */
   --accent-glow: rgba(255, 90, 44, 0.5);
@@ -273,9 +272,9 @@ body {
   padding: 0 24px;
   text-align: center;
   color: white;
-  font-family: "Playwrite GB S", cursive;
-  font-optical-sizing: auto;
+  font-family: "Patrick Hand", cursive;
   font-weight: 400;
+  font-style: normal;
   font-size: clamp(28px, 9vw, 42px);
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   opacity: 0;
@@ -362,3 +361,362 @@ body {
   pointer-events: auto;
   transition: opacity 0.6s ease 4.5s;
 }
+
+/* ---------- chapter 2: blue theme ---------- */
+
+/* old story content leaves */
+.story.chapter2 .story-text,
+.story.chapter2 .flyer {
+  opacity: 0;
+  animation: none;
+  transition: opacity 0.4s ease;
+}
+.story.chapter2 .story-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* blue gradient opens from the center to the left and right */
+.blue-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    to right,
+    #00000000 0%,
+    #1127558a 30%,
+    #1127558a 70%,
+    #00000000 100%
+  );
+  clip-path: inset(0 50% 0 50%); /* zero width at the center */
+  transition: clip-path 1.2s ease 0.4s;
+  pointer-events: none;
+}
+.chapter2 .blue-bg {
+  clip-path: inset(0 0 0 0); /* full width */
+}
+
+/* keep the content above the backdrop */
+.story-scene,
+.chapter {
+  z-index: 1;
+}
+
+/* chapter content */
+.chapter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  pointer-events: none;
+}
+.chapter-map {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 12px;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+}
+.chapter-text {
+  margin: 0;
+  font-family: "Patrick Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(24px, 7.5vw, 34px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+.chapter-btn {
+  opacity: 0;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* the red button doesn't fit the blue theme */
+}
+
+/* timing: blue spreads first, then map, text, button */
+.chapter2 .chapter-map {
+  opacity: 1;
+  transition: opacity 0.8s ease 1.6s;
+}
+.chapter2 .chapter-text {
+  opacity: 1;
+  transition: opacity 0.8s ease 2.2s;
+}
+.chapter2 .chapter-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease 3.2s;
+}
+
+/* ---------- chapter 3 ---------- */
+
+/* chapter 2 content leaves (the extra class beats the earlier timing rules) */
+.chapter2.chapter3 .chapter-map,
+.chapter2.chapter3 .chapter-text,
+.chapter2.chapter3 .chapter-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.chapter3-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* two models side by side in the top half */
+.duo {
+  position: absolute;
+  top: 6%;
+  left: 0;
+  right: 0;
+  height: 38%;
+  display: flex;
+  gap: 8px;
+  padding: 0 12px;
+  opacity: 0;
+}
+.duo-model {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.duo-model canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.c3-text {
+  position: absolute;
+  top: 52%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Patrick Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
+  font-style: normal;
+  font-size: clamp(22px, 6.5vw, 30px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+
+.c3-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+}
+
+/* timing: old content fades (0.4s), then models, text, button */
+.chapter3 .duo {
+  opacity: 1;
+  transition: opacity 0.8s ease 0.8s;
+}
+.chapter3 .c3-text {
+  opacity: 1;
+  transition: opacity 0.8s ease 1.6s;
+}
+.chapter3 .c3-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease 2.6s;
+}
+/* blue backdrop leaves when chapter 3 starts */
+.chapter2.chapter3 .blue-bg {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* ---------- chapter 4 ---------- */
+
+/* chapter 3 content leaves */
+.chapter3.chapter4 .duo,
+.chapter3.chapter4 .c3-text,
+.chapter3.chapter4 .c3-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.chapter4-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.c4-rover {
+  position: absolute;
+  top: 6%;
+  left: 10%;
+  right: 10%;
+  height: 38%;
+  opacity: 0;
+}
+.c4-rover canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.c4-text {
+  position: absolute;
+  top: 52%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Anton SC", sans-serif;
+  font-size: clamp(22px, 6.5vw, 30px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+
+.c4-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+}
+
+/* timing: old content fades (0.4s), then rover, text, button */
+.chapter4 .c4-rover {
+  opacity: 1;
+  transition: opacity 0.8s ease 0.8s;
+}
+.chapter4 .c4-text {
+  opacity: 1;
+  transition: opacity 0.8s ease 1.6s;
+}
+.chapter4 .c4-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease 2.6s;
+}
+
+
+
+/* ---------- chapter 5 ---------- */
+
+/* chapter 4 content leaves */
+.chapter4.chapter5 .c4-rover,
+.chapter4.chapter5 .c4-text,
+.chapter4.chapter5 .c4-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* blueprint background (the grid is a fallback if the image is missing) */
+.blueprint-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-color: #0a2a5e;
+  background-image:
+    url("/images/blueprint.jpg"),
+    linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: cover, 28px 28px, 28px 28px;
+  background-position: center;
+}
+.chapter5 .blueprint-bg {
+  opacity: 1;
+  transition: opacity 1s ease 0.4s;
+}
+
+.chapter5-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.c5-stage {
+  position: absolute;
+  top: 4%;
+  left: 0;
+  right: 0;
+  height: 62%;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.c5-text {
+  position: absolute;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Anton SC", sans-serif;
+  font-size: clamp(20px, 6vw, 28px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+
+.c5-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+}
+
+/* timing: old content fades, blueprint fades in, then rocket and text */
+.chapter5 .c5-stage {
+  opacity: 1;
+  pointer-events: auto;              /* so the payload can be dragged */
+  transition: opacity 0.8s ease 1.2s;
+}
+.chapter5 .c5-text {
+  opacity: 1;
+  transition: opacity 0.8s ease 1.8s;
+}
+
+/* after the payload is placed */
+.rocket-done .c5-stage { pointer-events: none; }
+.rocket-done .c5-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease 0.3s;
+}
+
+
+/* text swap after the part lands */
+.c5-text { transition: opacity 0.3s ease; }
+.c5-text.swapping { opacity: 0 !important; }
