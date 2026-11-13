@@ -494,6 +494,7 @@ body {
   min-width: 0;
   overflow: hidden;
 }
+
 .duo-model canvas {
   position: absolute;
   inset: 0;
