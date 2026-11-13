@@ -59,12 +59,47 @@ rovers.forEach((rover) => {
   });
 });
 
-/* what happens when an enabled rover is clicked */
+let storyStarted = false;
+
 function selectRover(rover) {
-  console.log("Selected:", rover.id);
-  window.dispatchEvent(new CustomEvent("rover-select", { detail: rover }));
-  // e.g. location.href = `/rover.html?id=${rover.id}`;
+  if (storyStarted || rover.id !== "opportunity") return;
+  storyStarted = true;
+
+  // stop Mars from showing labels/dots while it leaves
+  mars.classList.add("no-labels", "no-dots", "still");
+
+  // flying rover (a different model from the carousel one)
+
+  createViewer(
+    document.querySelector("#flyer .flyer-model"),
+    "../models/opportunity.glb",
+    {
+      rotate: false,
+      elevation: 10,
+      azimuth: 90,
+      headLight: 3,
+      studio: 1.5,
+    },
+  );
+  // flying mars
+  createViewer(
+    document.querySelector("#flyer2 .flyer-model"),
+    "../models/Mars.glb",
+    {
+      rotate: false,
+      elevation: 10,
+      azimuth: -90, // faces left, since this one flies right to left
+      headLight: 3,
+      studio: 1.5,
+    },
+  );
+  app.classList.add("story");
 }
+
+document.getElementById("continue").addEventListener("click", () => {
+  console.log("continue");
+  // e.g. location.href = "/chapter-1.html";
+});
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {

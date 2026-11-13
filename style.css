@@ -235,3 +235,130 @@ body {
   opacity: 0.3;
   cursor: default;
 }
+
+/* ---------- story scene 1 ---------- */
+.story-scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 1. Mars flies up and disappears */
+.explore.story .mars-wrap {
+  transform: translateY(-120%) scale(0.6);
+  opacity: 0;
+  transition:
+    transform 0.9s ease,
+    opacity 0.9s ease;
+}
+
+/* 2. carousel slides down and disappears */
+.explore.story .menu {
+  opacity: 0;
+  transform: translateY(120px);
+  pointer-events: none;
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+/* 3. text fades in, centered */
+.story-text {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Playwrite GB S", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-size: clamp(28px, 9vw, 42px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+}
+.story .story-text {
+  opacity: 1;
+  transition: opacity 0.8s ease 1s;
+}
+
+/* 4. rover flies across the top, left to right */
+.flyer {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  width: 160px;
+  height: 120px;
+  transform: translateX(-200px);
+  opacity: 0;
+}
+.flyer-model {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.flyer-model canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+.story .flyer {
+  opacity: 1;
+  animation: fly 6s linear 1.8s forwards;
+}
+.story .flyer-model {
+  animation: bob 1.4s ease-in-out infinite;
+}
+@keyframes fly {
+  from {
+    transform: translateX(-200px);
+  }
+  to {
+    transform: translateX(480px);
+  } /* a bit past the 430px column */
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+/* second flyer: bottom-right to top-left */
+.flyer-rtl {
+  top: auto;
+  left: auto;
+  right: 0;
+  bottom: 12%;
+  transform: translate(200px, 0);
+}
+.story .flyer-rtl {
+  animation: fly-diagonal 6s linear 3s forwards; /* starts after flyer 1 is underway */
+}
+@keyframes fly-diagonal {
+  from {
+    transform: translate(200px, 0);
+  }
+  to {
+    transform: translate(-640px, -70vh);
+  } /* past the left edge and up to the top */
+}
+/* 5. continue button appears */
+.story-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+.story .story-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease 4.5s;
+}
