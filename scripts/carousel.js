@@ -207,9 +207,9 @@ document.getElementById("continue4").addEventListener("click", () => {
       stageCapsule: { src: "../models/stage-capsule.glb" },
     },
     sounds: [
-      "../screwdriver/screwdriver1.mp3",
-      "../screwdriver/screwdriver2.mp3",
-      "../screwdriver/screwdriver4.mp3",
+      "../soundEffects/screwdriver/screwdriver1.mp3",
+      "../soundEffects/screwdriver/screwdriver2.mp3",
+      "../soundEffects/screwdriver/screwdriver4.mp3",
     ],
     onStep: (i) => {
       c5Step = i;
