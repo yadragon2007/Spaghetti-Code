@@ -118,14 +118,18 @@ document.getElementById("continue2").addEventListener("click", () => {
   });
 
   // the other object on the right (placeholder model)
-  createViewer(document.getElementById("duoObject"), "../models/BallOfWater.glb", {
-    rotate: true,
-    speed: 0.5,
-    elevation: 20,
-    azimuth: 30,
-    headLight: 3,
-    studio: 1.5,
-  });
+  createViewer(
+    document.getElementById("duoObject"),
+    "../models/BallOfWater.glb",
+    {
+      rotate: true,
+      speed: 0.5,
+      elevation: 20,
+      azimuth: 30,
+      headLight: 3,
+      studio: 1.5,
+    },
+  );
 
   app.classList.add("chapter3");
 });
@@ -159,16 +163,26 @@ document.getElementById("continue4").addEventListener("click", () => {
   chapter5Started = true;
 
   createRocketPuzzle(document.getElementById("c5Stage"), {
-    rocketSrc: "../models/rocket.glb", // placeholder: the large rocket
-    payloadSrc: "../models/nasaspacecraft.glb", // placeholder: the part to drag
+    models: {
+      rocket: { src: "../models/rocket.glb" },
+      rover: { src: "models/opportunity.glb" },
+      capsule: { src: "models/capsule.glb" },
+      stage: { src: "models/stage.glb" },
+      stageCapsule: { src: "models/stage-capsule.glb" },
+    },
+    sounds: [
+      "../soundEffects/screwdriver/screwdriver1.mp3",
+      "../soundEffects/screwdriver/screwdriver2.mp3",
+      "../soundEffects/screwdriver/screwdriver3.mp3",
+    ],
     onComplete: () => {
       const text = document.getElementById("c5Text");
-      text.classList.add("swapping"); // fade out
+      text.classList.add("swapping");
       setTimeout(() => {
         text.textContent = "Let's launch";
-        text.classList.remove("swapping"); // fade back in
+        text.classList.remove("swapping");
       }, 350);
-      app.classList.add("rocket-done"); // Continue button appears
+      app.classList.add("rocket-done");
     },
   });
 
