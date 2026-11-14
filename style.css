@@ -720,6 +720,36 @@ body {
   opacity: 0 !important;
 }
 
+/* text + instruction stacked above the continue button */
+.c5-caption {
+  position: absolute;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.c5-hint {
+  margin: 0;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.c5-hint.show {
+  opacity: 1;
+}
+
 /* button hidden until the voiceover ends */
 .btn.wait-voice {
   opacity: 0;

@@ -172,6 +172,26 @@ document.getElementById("continue3").addEventListener("click", () => {
   chapterVoice("../voiceover/scenes/scene4.mp4", "continue4");
 });
 
+/* ---------- chapter 5: instructions + voiceovers ---------- */
+const C5_HINTS = [
+  "Drag Opportunity into the capsule",
+  "Now drag the capsule onto the stage",
+  "Drag the loaded stage onto the top of the rocket",
+];
+let c5Step = 0;
+let c5HintReady = false; // becomes true when the first voice ends
+let c5Finished = false;
+
+function showHint(text) {
+  const hint = document.getElementById("c5Hint");
+  hint.classList.remove("show"); // fade out the old one
+  setTimeout(() => {
+    if (c5Finished) return;
+    hint.textContent = text;
+    hint.classList.add("show"); // fade in the new one
+  }, 350);
+}
+
 let chapter5Started = false;
 
 document.getElementById("continue4").addEventListener("click", () => {
@@ -181,28 +201,47 @@ document.getElementById("continue4").addEventListener("click", () => {
   createRocketPuzzle(document.getElementById("c5Stage"), {
     models: {
       rocket: { src: "../models/rocket.glb" },
-      rover: { src: "models/opportunity.glb" },
-      capsule: { src: "models/capsule.glb" },
-      stage: { src: "models/stage.glb" },
-      stageCapsule: { src: "models/stage-capsule.glb" },
+      rover: { src: "../models/opportunity.glb" },
+      capsule: { src: "../models/capsule.glb" },
+      stage: { src: "../models/stage.glb" },
+      stageCapsule: { src: "../models/stage-capsule.glb" },
     },
     sounds: [
-      "../soundEffects/screwdriver/screwdriver1.mp3",
-      "../soundEffects/screwdriver/screwdriver2.mp3",
-      "../soundEffects/screwdriver/screwdriver3.mp3",
+      "../screwdriver/screwdriver1.mp3",
+      "../screwdriver/screwdriver2.mp3",
+      "../screwdriver/screwdriver4.mp3",
     ],
+    onStep: (i) => {
+      c5Step = i;
+      if (c5HintReady) showHint(C5_HINTS[i]);
+    },
     onComplete: () => {
+      c5Finished = true;
+      document.getElementById("c5Hint").classList.remove("show");
+
       const text = document.getElementById("c5Text");
       text.classList.add("swapping");
       setTimeout(() => {
         text.textContent = "Let's launch";
         text.classList.remove("swapping");
+        // voice 2 starts with the new text, and the button waits for it to end
+        playVoice("../voiceover/scenes/scene5_2.mp4").then(() =>
+          app.classList.add("rocket-done"),
+        );
       }, 350);
-      app.classList.add("rocket-done");
     },
   });
 
   app.classList.add("chapter5");
+
+  // voice 1 starts when the first text fades in (1.8s), then the instruction appears
+  setTimeout(() => {
+    if (c5Finished) return;
+    playVoice("../voiceover/scenes/scene5_1.mp4").then(() => {
+      c5HintReady = true;
+      showHint(C5_HINTS[c5Step]);
+    });
+  }, 1800);
 });
 
 document.getElementById("continue5").addEventListener("click", () => {

@@ -54,8 +54,9 @@ const DEFAULTS = {
 export async function createRocketPuzzle(container, opts = {}) {
   const {
     models = {},
-    sounds = [], // path to the combine sound (mp3)
-    snapDistance = 0.9, // how close counts as "connected"
+    sounds = [],
+    snapDistance = 0.9,
+    onStep = () => {}, // <- add this line
     onComplete = () => {},
   } = opts;
 
@@ -238,6 +239,7 @@ export async function createRocketPuzzle(container, opts = {}) {
         onComplete();
       } else {
         showStep(stepIndex);
+        onStep(stepIndex);
       }
     }
   }
