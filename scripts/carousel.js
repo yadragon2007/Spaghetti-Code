@@ -127,6 +127,7 @@ document.getElementById("continue2").addEventListener("click", () => {
     azimuth: 0,
     headLight: 2,
     studio: 0.5,
+    fit: true,
   });
 
   // the other object on the right (placeholder model)
@@ -140,6 +141,7 @@ document.getElementById("continue2").addEventListener("click", () => {
       azimuth: 30,
       headLight: 3,
       studio: 1.5,
+      fit: true,
     },
   );
 
