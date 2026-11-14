@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
+import { playVoice, waitForTap } from "./voice.js";
 /* =====================================================
    SETTINGS
 ===================================================== */
@@ -241,6 +241,45 @@ document.getElementById("start").addEventListener("click", () => {
   container.classList.remove("no-dots");
 });
 
+/* ---------- intro voiceover: the explore button waits for it ---------- */
+const startBtn = document.getElementById("start");
+const tapHint = document.getElementById("tap-hint");
+
+async function introVoice() {
+  let result = await playVoice("voiceover/the spaghetti code.mp4"); // your voice file
+
+  if (result === "blocked") {
+    tapHint.classList.add("show"); // browser needs a tap first
+    await waitForTap();
+    tapHint.classList.remove("show");
+    result = await playVoice("voiceover/the spaghetti code.mp4");
+  }
+
+  // ended (or the file failed): now the button can appear
+  startBtn.classList.remove("wait-voice");
+}
+introVoice();
+
+/* ---------- background music (loops forever) ---------- */
+const bgm = new Audio("../soundEffects/space-bg-sound.mp3"); // your music file
+bgm.loop = true;
+bgm.volume = 0.3;
+
+const unlockEvents = ["pointerup", "click", "keydown", "touchend"];
+
+function startMusic() {
+  bgm
+    .play()
+    .then(() =>
+      unlockEvents.forEach((e) => window.removeEventListener(e, startMusic)),
+    )
+    .catch(() => {}); // blocked: wait for the next interaction
+}
+
+unlockEvents.forEach((e) => window.addEventListener(e, startMusic));
+startMusic(); // try immediately on load
+
+window.bgm = bgm;
 /* =====================================================
    OPTIONAL HELPERS (use from the console or your own code)
 ===================================================== */

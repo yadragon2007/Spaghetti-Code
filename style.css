@@ -721,3 +721,34 @@ body {
 /* text swap after the part lands */
 .c5-text { transition: opacity 0.3s ease; }
 .c5-text.swapping { opacity: 0 !important; }
+
+
+/* button hidden until the voiceover ends */
+.btn.wait-voice {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* "Tap to begin" hint, only shown if the browser blocks autoplay */
+.tap-hint {
+  position: absolute;
+  bottom: 72px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  color: white;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.tap-hint.show {
+  opacity: 1;
+  animation: hint-pulse 1.6s ease-in-out infinite;
+}
+@keyframes hint-pulse {
+  50% { opacity: 0.4; }
+}

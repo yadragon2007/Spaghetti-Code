@@ -1,5 +1,6 @@
 import { createViewer } from "./viewer.js";
 import { createRocketPuzzle } from "./rocket.js";
+import { playVoice, stopVoice } from "./voice.js";
 
 /* ---------- data: id must match a key in ROVERS in main.js ---------- */
 const rovers = [
@@ -8,12 +9,14 @@ const rovers = [
     name: "Opportunity",
     Model: "../models/opportunity.glb",
     enabled: true,
+    voice: "../voiceover/opportunity.mp3",
   },
   {
     id: "spirit",
     name: "Spirit",
     Model: "../models/opportunity.glb",
     enabled: false,
+    voice: "../voiceover/spirit.mp4",
   },
 ];
 
@@ -210,6 +213,34 @@ function syncMars() {
 new MutationObserver(syncMars).observe(app, {
   attributes: true,
   attributeFilter: ["class"],
+});
+
+/* ---------- say the selected rover's name ---------- */
+function speakActive() {
+  // only while the carousel is on screen (not before explore, not after the story starts)
+  if (!app.classList.contains("explore") || app.classList.contains("story"))
+    return;
+  playVoice(rovers[active].voice);
+}
+
+let wasCarousel = false;
+new MutationObserver(() => {
+  const isCarousel =
+    app.classList.contains("explore") && !app.classList.contains("story");
+
+  if (isCarousel && !wasCarousel) setTimeout(speakActive, 700); // wait for the carousel to fade in
+  if (!isCarousel && wasCarousel) stopVoice(); // leaving: cut the name off
+  wasCarousel = isCarousel;
+}).observe(app, { attributes: true, attributeFilter: ["class"] });
+
+track.addEventListener("scroll", () => {
+  const i = Math.round(track.scrollLeft / track.clientWidth);
+  if (i !== active) {
+    active = i;
+    updateArrows();
+    syncMars();
+    speakActive(); // <- add this line
+  }
 });
 
 /* ---------- carousel behaviour ---------- */
