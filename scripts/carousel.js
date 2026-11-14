@@ -108,7 +108,7 @@ document.getElementById("continue2").addEventListener("click", () => {
   chapter3Started = true;
 
   // Mars on the left (spinning)
-  createViewer(document.getElementById("duoMars"), "/models/Mars.glb", {
+  createViewer(document.getElementById("duoMars"), "../models/Mars.glb", {
     rotate: true,
     speed: 0.35,
     elevation: 10,
@@ -118,7 +118,7 @@ document.getElementById("continue2").addEventListener("click", () => {
   });
 
   // the other object on the right (placeholder model)
-  createViewer(document.getElementById("duoObject"), "../models/Mars.glb", {
+  createViewer(document.getElementById("duoObject"), "../models/BallOfWater.glb", {
     rotate: true,
     speed: 0.5,
     elevation: 20,
@@ -144,8 +144,8 @@ document.getElementById("continue3").addEventListener("click", () => {
       speed: 0.35,
       elevation: 20,
       azimuth: 40,
-      headLight: 3,
-      studio: 1.5,
+      headLight: 8,
+      studio: 9,
     },
   );
 
@@ -160,7 +160,7 @@ document.getElementById("continue4").addEventListener("click", () => {
 
   createRocketPuzzle(document.getElementById("c5Stage"), {
     rocketSrc: "../models/rocket.glb", // placeholder: the large rocket
-    payloadSrc: "../models/mars.glb", // placeholder: the part to drag
+    payloadSrc: "../models/nasaspacecraft.glb", // placeholder: the part to drag
     onComplete: () => {
       const text = document.getElementById("c5Text");
       text.classList.add("swapping"); // fade out
