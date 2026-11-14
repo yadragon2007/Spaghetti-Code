@@ -28,6 +28,13 @@ const next = document.getElementById("next");
 
 let active = 0;
 
+/* plays a chapter's voiceover, then lets its continue button appear */
+function chapterVoice(src, btnId) {
+  const btn = document.getElementById(btnId);
+  btn.classList.remove("ready");
+  playVoice(src).then(() => btn.classList.add("ready"));
+}
+
 /* ---------- build the slides ---------- */
 rovers.forEach((rover) => {
   const slide = document.createElement("div");
@@ -98,10 +105,12 @@ function selectRover(rover) {
     },
   );
   app.classList.add("story");
+  chapterVoice("../voiceover/scenes/scene1.mp4", "continue");
 }
 
 document.getElementById("continue").addEventListener("click", () => {
   app.classList.add("chapter2");
+  chapterVoice("../voiceover/scenes/scene2.mp4", "continue2");
 });
 
 let chapter3Started = false;
@@ -123,7 +132,7 @@ document.getElementById("continue2").addEventListener("click", () => {
   // the other object on the right (placeholder model)
   createViewer(
     document.getElementById("duoObject"),
-    "../models/BallOfWater.glb",
+    "../models/mars with oceans.glb",
     {
       rotate: true,
       speed: 0.5,
@@ -135,6 +144,7 @@ document.getElementById("continue2").addEventListener("click", () => {
   );
 
   app.classList.add("chapter3");
+  chapterVoice("../voiceover/scenes/scene3.mp4", "continue3");
 });
 
 let chapter4Started = false;
@@ -157,6 +167,7 @@ document.getElementById("continue3").addEventListener("click", () => {
   );
 
   app.classList.add("chapter4");
+  chapterVoice("../voiceover/scenes/scene4.mp4", "continue4");
 });
 
 let chapter5Started = false;
@@ -229,7 +240,6 @@ new MutationObserver(() => {
     app.classList.contains("explore") && !app.classList.contains("story");
 
   if (isCarousel && !wasCarousel) setTimeout(speakActive, 700); // wait for the carousel to fade in
-  if (!isCarousel && wasCarousel) stopVoice(); // leaving: cut the name off
   wasCarousel = isCarousel;
 }).observe(app, { attributes: true, attributeFilter: ["class"] });
 

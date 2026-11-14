@@ -263,7 +263,7 @@ introVoice();
 /* ---------- background music (loops forever) ---------- */
 const bgm = new Audio("../soundEffects/space-bg-sound.mp3"); // your music file
 bgm.loop = true;
-bgm.volume = 0.3;
+bgm.volume = 0.1;
 
 const unlockEvents = ["pointerup", "click", "keydown", "touchend"];
 

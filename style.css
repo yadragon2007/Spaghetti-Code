@@ -17,6 +17,16 @@ body {
   width: 100%;
 }
 
+/* a chapter's continue button shows only after its voiceover ends */
+.story-btn.ready,
+.chapter-btn.ready,
+.c3-btn.ready,
+.c4-btn.ready {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease;
+}
+
 /* ---------- Mars wrapper: animated with transform ---------- */
 .mars-wrap {
   transition: transform 0.8s ease;
@@ -356,11 +366,6 @@ body {
   transform: translateX(-50%);
   opacity: 0;
 }
-.story .story-btn {
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.6s ease 4.5s;
-}
 
 /* ---------- chapter 2: blue theme ---------- */
 
@@ -452,11 +457,6 @@ body {
   opacity: 1;
   transition: opacity 0.8s ease 2.2s;
 }
-.chapter2 .chapter-btn {
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.6s ease 3.2s;
-}
 
 /* ---------- chapter 3 ---------- */
 
@@ -515,7 +515,6 @@ body {
   font-family: "Patrick Hand", cursive;
   font-weight: 400;
   font-style: normal;
-  font-style: normal;
   font-size: clamp(22px, 6.5vw, 30px);
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   opacity: 0;
@@ -539,11 +538,7 @@ body {
   opacity: 1;
   transition: opacity 0.8s ease 1.6s;
 }
-.chapter3 .c3-btn {
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.6s ease 2.6s;
-}
+
 /* blue backdrop leaves when chapter 3 starts */
 .chapter2.chapter3 .blue-bg {
   opacity: 0;
@@ -593,7 +588,9 @@ body {
   padding: 0 24px;
   text-align: center;
   color: white;
-  font-family: "Anton SC", sans-serif;
+  font-family: "Patrick Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
   font-size: clamp(22px, 6.5vw, 30px);
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   opacity: 0;
@@ -617,13 +614,6 @@ body {
   opacity: 1;
   transition: opacity 0.8s ease 1.6s;
 }
-.chapter4 .c4-btn {
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.6s ease 2.6s;
-}
-
-
 
 /* ---------- chapter 5 ---------- */
 
@@ -646,9 +636,12 @@ body {
   background-color: #0a2a5e;
   background-image:
     url("/images/blueprint.jpg"),
-    linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
-  background-size: cover, 28px 28px, 28px 28px;
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size:
+    cover,
+    28px 28px,
+    28px 28px;
   background-position: center;
 }
 .chapter5 .blueprint-bg {
@@ -701,7 +694,7 @@ body {
 /* timing: old content fades, blueprint fades in, then rocket and text */
 .chapter5 .c5-stage {
   opacity: 1;
-  pointer-events: auto;              /* so the payload can be dragged */
+  pointer-events: auto; /* so the payload can be dragged */
   transition: opacity 0.8s ease 1.2s;
 }
 .chapter5 .c5-text {
@@ -710,18 +703,22 @@ body {
 }
 
 /* after the payload is placed */
-.rocket-done .c5-stage { pointer-events: none; }
+.rocket-done .c5-stage {
+  pointer-events: none;
+}
 .rocket-done .c5-btn {
   opacity: 1;
   pointer-events: auto;
   transition: opacity 0.6s ease 0.3s;
 }
 
-
 /* text swap after the part lands */
-.c5-text { transition: opacity 0.3s ease; }
-.c5-text.swapping { opacity: 0 !important; }
-
+.c5-text {
+  transition: opacity 0.3s ease;
+}
+.c5-text.swapping {
+  opacity: 0 !important;
+}
 
 /* button hidden until the voiceover ends */
 .btn.wait-voice {
@@ -750,5 +747,7 @@ body {
   animation: hint-pulse 1.6s ease-in-out infinite;
 }
 @keyframes hint-pulse {
-  50% { opacity: 0.4; }
+  50% {
+    opacity: 0.4;
+  }
 }
