@@ -193,6 +193,7 @@ function showHint(text) {
 }
 
 let chapter5Started = false;
+let rocketPuzzle = null;
 
 document.getElementById("continue4").addEventListener("click", () => {
   if (chapter5Started) return;
@@ -229,8 +230,11 @@ document.getElementById("continue4").addEventListener("click", () => {
           app.classList.add("rocket-done"),
         );
       }, 350);
+
+      document.getElementById("continue5").textContent = "launch";
+      app.classList.add("rocket-done", "chapter6"); // chapter 6 starts here
     },
-  });
+  }).then((puzzle) => (rocketPuzzle = puzzle));
 
   app.classList.add("chapter5");
 
@@ -244,11 +248,27 @@ document.getElementById("continue4").addEventListener("click", () => {
   }, 1800);
 });
 
-document.getElementById("continue5").addEventListener("click", () => {
-  console.log("continue 5");
-  // e.g. app.classList.add("chapter6");
-});
+/* chapter 6: first click launches the rocket, then the button becomes "continue" */
+let launching = false;
+let launched = false;
 
+document.getElementById("continue5").addEventListener("click", async () => {
+  if (launching) return;
+  const btn = document.getElementById("continue5");
+
+  if (!launched) {
+    launching = true;
+    app.classList.add("launching"); // hides the button
+    await rocketPuzzle.launch(); // resolves when the rocket is off screen
+    launching = false;
+    launched = true;
+    btn.textContent = "continue";
+    app.classList.remove("launching"); // button comes back
+    return;
+  }
+
+  console.log("continue 6"); // e.g. app.classList.add("chapter7");
+});
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {
   rovers.forEach((r) => mars.classList.remove(r.id));

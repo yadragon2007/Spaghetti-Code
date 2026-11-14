@@ -51,6 +51,56 @@ const DEFAULTS = {
   stageCapsule: { size: 1.9 }, // position is worked out from the stage
 };
 
+/* synthesized rocket rumble (no audio file). Returns a function that fades it out. */
+function startRumble() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return () => {};
+  const ctx = new AC();
+  const t0 = ctx.currentTime;
+
+  // brown noise
+  const len = ctx.sampleRate * 2;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < len; i++) {
+    last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+    data[i] = last * 3.5;
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buf;
+  noise.loop = true;
+
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.setValueAtTime(120, t0);
+  lp.frequency.linearRampToValueAtTime(450, t0 + 4);
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0, t0);
+  master.gain.linearRampToValueAtTime(0.9, t0 + 2.5);
+
+  // sub bass you feel more than hear
+  const sub = ctx.createOscillator();
+  sub.type = "sawtooth";
+  sub.frequency.value = 38;
+  const subGain = ctx.createGain();
+  subGain.gain.value = 0.25;
+
+  noise.connect(lp).connect(master).connect(ctx.destination);
+  sub.connect(subGain).connect(master);
+  noise.start();
+  sub.start();
+
+  return () => {
+    const t = ctx.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value, t);
+    master.gain.linearRampToValueAtTime(0, t + 1.2);
+    setTimeout(() => ctx.close(), 1500);
+  };
+}
+
 export async function createRocketPuzzle(container, opts = {}) {
   const {
     models = {},
@@ -257,10 +307,54 @@ export async function createRocketPuzzle(container, opts = {}) {
   }
   new ResizeObserver(resize).observe(container);
   resize();
+  /* ---------- launch ---------- */
+  // height at which even the rocket's deepest part is out of view, plus a margin
+  const offTop =
+    (camera.position.z + P.rocket.dims.z / 2) * Math.tan(rad(camera.fov / 2)) +
+    0.5;
+  let launchState = null;
 
+  function launch() {
+    return new Promise((resolve) => {
+      const stopRumble = startRumble();
+      launchState = {
+        speed: 0.2,
+        resolve: () => {
+          stopRumble();
+          resolve();
+        },
+      };
+    });
+  }
   const clock = new THREE.Clock();
-  renderer.setAnimationLoop(() => {
+  let last = performance.now();
+
+  renderer.setAnimationLoop((now) => {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+
     ring.material.opacity = 0.4 + 0.3 * Math.sin(clock.getElapsedTime() * 3);
+
+    if (rocketPos.y - P.rocket.dims.y / 2 > offTop) {
+      const done = launchState.resolve;
+      launchState = null;
+      P.rocket.group.visible = false; // nothing can peek out at the bottom
+      done();
+    }
+
+    if (launchState) {
+      launchState.speed += 1.1 * dt; // accelerates like a real launch
+      rocketPos.y += launchState.speed * dt;
+
+      if (rocketPos.y - P.rocket.dims.y / 2 > offTop) {
+        const done = launchState.resolve;
+        launchState = null;
+        done();
+      }
+    }
+
     renderer.render(scene, camera);
   });
+
+  return { launch };
 }
