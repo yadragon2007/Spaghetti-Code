@@ -1892,3 +1892,182 @@ body {
     transform: translate3d(var(--dx), var(--fall), 0) rotate(var(--rot));
   }
 }
+
+/* ---------- chapter 13 ---------- */
+
+/* chapter 12 content leaves, the old land slides away */
+.chapter12.chapter13 #c12Text {
+  opacity: 0;
+}
+.chapter12.chapter13 #c12Hint,
+.chapter12.chapter13 #c12Controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter12.chapter13 #continue12 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter12.chapter13 .c12-bubble {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.chapter12.chapter13 .land12 {
+  transform: translateY(105%);
+}
+
+/* the dense storm: a much darker sky, no visible sun (fades in over the warm one) */
+.storm13 {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  background: linear-gradient(
+    to bottom,
+    #1a0e06 0%,
+    #3c2210 40%,
+    #6b4520 75%,
+    #8a6236 100%
+  );
+}
+.chapter13 .storm13 {
+  opacity: 1;
+}
+/* only a faint glow where the sun was, almost eaten by the dust */
+.storm13::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 72% 18%,
+    rgba(255, 220, 160, 0.3) 0,
+    rgba(255, 200, 120, 0.12) 60px,
+    transparent 160px
+  );
+}
+/* the dust eats the whole sky in faster, heavier gusts than chapter 10 */
+.storm13::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(35, 18, 8, 0.55);
+  opacity: 0;
+  animation: gust13 4s ease-in-out infinite;
+}
+@keyframes gust13 {
+  0% {
+    opacity: 0.15;
+  }
+  25% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  75% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+/* a slow haze layer that adds density over the whole sky */
+.storm13 .haze13 {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  background: repeating-linear-gradient(
+    100deg,
+    rgba(70, 40, 18, 0.4) 0px,
+    rgba(70, 40, 18, 0.4) 60px,
+    rgba(90, 55, 25, 0.35) 130px,
+    rgba(50, 28, 12, 0.4) 220px
+  );
+  animation: haze-drift 26s linear infinite;
+}
+@keyframes haze-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* darker and more opaque dust than chapter 10's (same keyframes) */
+.storm13 .dust-cloud,
+.dust-front13 .dust-cloud {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(150, 105, 60, var(--o)) 0%,
+    rgba(150, 105, 60, 0) 70%
+  );
+}
+.storm13 .dust-streak,
+.dust-front13 .dust-streak {
+  background: linear-gradient(
+    90deg,
+    rgba(180, 140, 95, var(--o)),
+    rgba(180, 140, 95, 0)
+  );
+}
+
+/* dust in front of the rover */
+.dust-front13 {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.chapter13 .dust-front13 {
+  opacity: 1;
+}
+
+/* the dusty ground (the rover's bottom is set to the same 30% in JS) */
+.land13 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateY(105%);
+  transition: transform 1s ease 0.3s;
+}
+.land13::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(180, 140, 95, 0.3), transparent 60%),
+    linear-gradient(to bottom, #6e4525 0%, #432715 55%, #1c0f07 100%);
+  clip-path: polygon(
+    0 8%,
+    14% 5%,
+    32% 9%,
+    50% 4%,
+    66% 10%,
+    82% 5%,
+    100% 8%,
+    100% 100%,
+    0 100%
+  );
+}
+.chapter13 .land13 {
+  transform: none;
+}
+
+/* the rover fades in on this land */
+.chapter13 .rover8 {
+  transition: opacity 0.8s ease;
+}

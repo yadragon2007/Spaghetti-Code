@@ -904,18 +904,23 @@ const RIDGE10 = [
 ];
 
 /* the dust storm: JS creates the dust pieces (like the wind in chapter 7) */
-function buildStorm() {
-  const back = document.getElementById("storm");
-  const front = document.getElementById("dustFront");
+function buildStorm(backId = "storm", frontId = "dustFront", cfg = C10) {
+  const back = document.getElementById(backId);
+  const front = document.getElementById(frontId);
   const travel = Math.round(app.clientWidth * 1.2 + 220) + "px";
   back.style.setProperty("--travel", travel);
   front.style.setProperty("--travel", travel);
+  const wind = cfg.windSpeed || 1; // bigger = faster dust (chapter 10 has none)
 
   function addDust(box, kind, count, fast) {
     for (let i = 0; i < count; i++) {
       const s = document.createElement("span");
       const dur =
-        kind === "cloud" ? rand(8, 14) : fast ? rand(0.6, 1.3) : rand(0.9, 2);
+        (kind === "cloud"
+          ? rand(8, 14)
+          : fast
+            ? rand(0.6, 1.3)
+            : rand(0.9, 2)) / wind;
       s.className = "dust-" + kind;
       s.style.cssText = `
         left: ${rand(100, 120)}%;
@@ -930,10 +935,10 @@ function buildStorm() {
     }
   }
 
-  addDust(back, "cloud", C10.clouds, false);
-  addDust(back, "streak", C10.streaks, false);
-  addDust(front, "cloud", C10.frontClouds, false);
-  addDust(front, "streak", C10.frontStreaks, true);
+  addDust(back, "cloud", cfg.clouds, false);
+  addDust(back, "streak", cfg.streaks, false);
+  addDust(front, "cloud", cfg.frontClouds, false);
+  addDust(front, "streak", cfg.frontStreaks, true);
 }
 
 let chapter10Started = false;
@@ -1561,8 +1566,222 @@ document.getElementById("continue11").addEventListener("click", () => {
   runChapter12();
 });
 
+/* ---------- chapter 13 ---------- */
+
+const C13 = {
+  startDelay: 1400, // after clicking continue: the storm fades in, then the rover appears
+  streaks: 36, // dust streaks behind the rover
+  clouds: 10, // dust clouds behind the rover
+  frontStreaks: 20, // dust streaks in front of the rover
+  frontClouds: 6, // dust clouds in front of the rover
+  windSpeed: 1.5, // how much faster the dust flies than chapter 10 (1 = same)
+  speed: 40, // top speed with full power (px per second); much slower than chapter 10
+  minPower: 0.15, // how slow it gets with no power (1 = full speed, 0 = nothing)
+  goMin: 0.3,
+  goMax: 0.8, // how long it runs before it stalls (seconds)
+  stallMin: 0.8,
+  stallMax: 2, // how long it stalls (seconds)
+  lean: 8, // limp angle while moving (degrees)
+  sink: 16, // lowers the rover onto the ground (px)
+  drain: 0.5, // power lost per second while moving (1 = full)
+  recharge: 0.04, // power regained per second while resting
+  textDelay: 400, // pause after the arrows appear, before the sentence and voice start
+  controlsDelay: 400, // pause after the rover appears, before the arrows appear
+  facesRight: true, // same setting as chapters 8 to 12
+};
+
+const C13_TEXT =
+  "In late May 2018, a dust storm was spotted near Oppy’s location, which grew into a planet-encircling event, darkening the sky and causing issues with power generation.";
+const C13_VOICE = "../voiceover/scenes/scene13.mp4";
+const C13_HINTS = {
+  drive: "The storm is choking the solar panels. Try to drive",
+  drained: "Almost no power at all! Let Opportunity recover",
+};
+
+// the top edge of the land: the same numbers as the clip-path in .land13 [x %, y % of the land height]
+const RIDGE13 = [
+  [0, 8],
+  [14, 5],
+  [32, 9],
+  [50, 4],
+  [66, 10],
+  [82, 5],
+  [100, 8],
+];
+
+let chapter13Started = false;
+
+async function runChapter13() {
+  const rover = document.getElementById("rover8"); // the same rover as before
+  const flip = rover.querySelector(".rover-flip");
+  const land = document.getElementById("land13");
+  const text = document.getElementById("c13Text");
+  const hint = document.getElementById("c13Hint");
+  const controls = document.getElementById("c13Controls");
+  const leftBtn = document.getElementById("c13Left");
+  const rightBtn = document.getElementById("c13Right");
+
+  // the chapter 10 storm is hidden but its pieces keep moving: stop them
+  document.getElementById("storm").innerHTML = "";
+  document.getElementById("dustFront").innerHTML = "";
+
+  // chapter 12's rover leaves first
+  rover.classList.remove("driving", "drained", "celebrate", "glitch");
+  rover.style.opacity = 0;
+  await wait(C12.fadeOut);
+
+  // chapter 12 freed the rover model, so load it again
+  createViewer(
+    rover.querySelector(".rover-model"),
+    "../models/opportunity.glb",
+    {
+      azimuth: 90, // side view; try -90 if it looks backwards
+      elevation: 8,
+      headLight: 3,
+      studio: 1.5,
+      fit: true,
+      fitPadding: 1.05,
+      group: "rover",
+    },
+  );
+
+  const storm13 = document.getElementById("storm13");
+  const haze = document.createElement("span");
+  haze.className = "haze13";
+  storm13.appendChild(haze);
+  buildStorm("storm13", "dustFront13", C13);
+
+  const rw = rover.offsetWidth;
+  let x = (app.clientWidth - rw) / 2; // in the middle of the screen
+  let dir = 1; // last direction: 1 = right, -1 = left
+  let phase = "wait"; // "wait" -> "drive" -> "done"
+  let hintKind = null;
+  let energy = 0.6; // it starts with less than full power
+  let go = rand(C13.goMin, C13.goMax); // time left before the next stall
+  let stall = 0; // time left in the current stall
+  let lurch = 1; // speed multiplier of the current run
+
+  const input = bindDriveControls(leftBtn, rightBtn, () => phase === "drive");
+
+  // the rover (still invisible) goes to the dusty ground, still broken
+  rover.classList.add("broken");
+  rover.style.bottom = "30%"; // the top line of the new land (same as .land13 height)
+  rover.style.transformOrigin = "50% 100%"; // it tilts around its wheels
+
+  function setHint(kind) {
+    if (hintKind === kind) return;
+    hintKind = kind;
+    hint.classList.remove("show");
+    setTimeout(() => {
+      if (hintKind !== kind) return; // a newer message replaced this one
+      hint.textContent = C13_HINTS[kind];
+      hint.classList.add("show");
+    }, 350);
+  }
+  function hideHint() {
+    hintKind = null;
+    hint.classList.remove("show");
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const w = app.clientWidth;
+    const maxX = w - rw; // the rover can't leave the screen on either side
+
+    // weak movement: runs, stalls a lot, lurches again at a random speed
+    let moving = false;
+    if (phase === "drive" && input.hold !== 0) {
+      dir = input.hold;
+      if (stall > 0) {
+        stall -= dt; // stalled: it doesn't move
+      } else {
+        moving = true;
+        x += input.hold * C13.speed * lurch * (C13.minPower + (1 - C13.minPower) * energy) * dt; // no power = almost no move
+        x = Math.max(0, Math.min(maxX, x)); // both sides are blocked
+        if ((x <= 0 && input.hold === -1) || (x >= maxX && input.hold === 1))
+          moving = false;
+        go -= dt;
+        if (go <= 0) {
+          stall = rand(C13.stallMin, C13.stallMax);
+          go = rand(C13.goMin, C13.goMax);
+          lurch = rand(0.5, 1.2);
+        }
+      }
+    }
+
+    // the storm eats the rover's power while it moves; a little comes back while it rests
+    energy = moving
+      ? Math.max(0, energy - C13.drain * dt)
+      : Math.min(1, energy + C13.recharge * dt);
+    if (energy <= 0 && stall <= 0) {
+      stall = rand(C13.stallMax * 3, C13.stallMax * 5); // almost no power: a very long stall
+      energy = 0.05;
+    }
+
+    // follow the ridge of the land and tilt with its slope
+    const cx = x + rw / 2;
+    const depth = (px) =>
+      (ridgeOf(RIDGE13, (px / w) * 100) / 100) * land.offsetHeight;
+    const ty = depth(cx) + C13.sink;
+    const ang =
+      (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
+    flip.style.transform = `scaleX(${dir < 0 === C13.facesRight ? -1 : 1}) rotate(${moving ? C13.lean : 0}deg)`;
+    rover.classList.toggle("driving", moving);
+    rover.classList.toggle("drained", energy < 0.4); // it looks weak most of the time
+
+    if (phase === "drive") {
+      leftBtn.classList.toggle("blocked", x <= 0.5);
+      rightBtn.classList.toggle("blocked", x >= maxX - 0.5);
+      if (energy < 0.15) setHint("drained");
+      else if (energy > 0.4) setHint("drive");
+    }
+
+    // the voice ended: stop the loop
+    if (phase === "done") {
+      rover.classList.remove("driving", "drained");
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // 1. the storm fades in, then the rover appears in the middle
+  await wait(C13.startDelay);
+  rover.style.opacity = 1;
+
+  // 2. the arrows and the guide message: the user can try to drive
+  await wait(C13.controlsDelay);
+  phase = "drive";
+  controls.classList.add("show");
+  setHint("drive");
+
+  // 3. the sentence and its voice (the user can keep trying to drive meanwhile)
+  await wait(C13.textDelay);
+  text.textContent = C13_TEXT;
+  text.classList.add("show");
+  await playVoice(C13_VOICE);
+
+  // 4. the voice ended: the arrows leave and continue appears
+  phase = "done";
+  input.hold = 0;
+  controls.classList.remove("show");
+  hideHint();
+  document.getElementById("continue13").classList.add("ready");
+}
+
+// chapter 12 continue -> chapter 13
 document.getElementById("continue12").addEventListener("click", () => {
-  console.log("continue 12"); // e.g. app.classList.add("chapter13");
+  if (chapter13Started) return;
+  chapter13Started = true;
+  app.classList.add("chapter13");
+  runChapter13();
+});
+
+document.getElementById("continue13").addEventListener("click", () => {
+  console.log("continue 13"); // e.g. app.classList.add("chapter14");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
