@@ -894,8 +894,6 @@ body {
   transition: opacity 0.6s ease;
 }
 
-
-
 /* ---------- chapter 7 ---------- */
 
 /* chapter 6 content leaves */
@@ -907,8 +905,10 @@ body {
 }
 .chapter6.chapter7 .chapter6-scene {
   opacity: 0;
-  visibility: hidden;      /* also blocks the hidden buttons from being clicked */
-  transition: opacity 0.5s ease, visibility 0s 0.5s;
+  visibility: hidden; /* also blocks the hidden buttons from being clicked */
+  transition:
+    opacity 0.5s ease,
+    visibility 0s 0.5s;
 }
 
 .chapter7-scene {
@@ -924,7 +924,9 @@ body {
   inset: 0;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.8s ease, visibility 0s 0.8s;
+  transition:
+    opacity 0.8s ease,
+    visibility 0s 0.8s;
 }
 #chapter7[data-scene="1"] .s1,
 #chapter7[data-scene="2"] .s2,
@@ -958,26 +960,36 @@ body {
   position: absolute;
   left: -75px;
   top: -75px;
-  width: 150px;             /* Mars size */
+  width: 150px; /* Mars size */
   height: 150px;
 }
 .s1-capsule {
   position: absolute;
   left: -130px;
   top: -130px;
-  width: 260px;             /* starting size, close to the viewer */
+  width: 260px; /* starting size, close to the viewer */
   height: 260px;
   opacity: 0;
   transform: translate(170px, 260px) scale(1);
 }
 .go1 .s1-capsule {
-  animation: s1-fly var(--s1-flight, 10000ms) cubic-bezier(0.25, 0.6, 0.35, 1) forwards;
+  animation: s1-fly var(--s1-flight, 10000ms) cubic-bezier(0.25, 0.6, 0.35, 1)
+    forwards;
 }
 /* starts large at the side, shrinks as it gets farther, disappears into Mars */
 @keyframes s1-fly {
-  0%   { transform: translate(170px, 260px) scale(1);  opacity: 1; }
-  92%  { transform: translate(8px, 6px) scale(0.09);   opacity: 1; }
-  100% { transform: translate(0, 0) scale(0.07);       opacity: 0; }
+  0% {
+    transform: translate(170px, 260px) scale(1);
+    opacity: 1;
+  }
+  92% {
+    transform: translate(8px, 6px) scale(0.09);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) scale(0.07);
+    opacity: 0;
+  }
 }
 
 /* ----- red atmosphere (scene 2 and 3) ----- */
@@ -988,7 +1000,13 @@ body {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  background: linear-gradient(to bottom, #2a0d08 0%, #7a2410 35%, #c2501f 70%, #e8894a 100%);
+  background: linear-gradient(
+    to bottom,
+    #2a0d08 0%,
+    #7a2410 35%,
+    #c2501f 70%,
+    #e8894a 100%
+  );
 }
 .sky-on .mars-sky {
   opacity: 1;
@@ -1005,16 +1023,30 @@ body {
   position: absolute;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, rgba(255, 235, 210, 0.9), rgba(255, 235, 210, 0));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 235, 210, 0.9),
+    rgba(255, 235, 210, 0)
+  );
   transform: rotate(45deg);
   opacity: 0;
   animation: wind-blow linear infinite;
 }
 @keyframes wind-blow {
-  0%   { transform: rotate(45deg) translateX(0);       opacity: 0; }
-  15%  { opacity: var(--o); }
-  85%  { opacity: var(--o); }
-  100% { transform: rotate(45deg) translateX(-900px);  opacity: 0; }
+  0% {
+    transform: rotate(45deg) translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--o);
+  }
+  85% {
+    opacity: var(--o);
+  }
+  100% {
+    transform: rotate(45deg) translateX(-900px);
+    opacity: 0;
+  }
 }
 
 /* ----- scene 2: the capsule falls, swaying left and right ----- */
@@ -1025,14 +1057,19 @@ body {
   width: 230px;
   height: 230px;
   margin-left: -115px;
-  filter: drop-shadow(0 0 24px rgba(255, 150, 60, 0.75));   /* heat glow */
+  filter: drop-shadow(0 0 24px rgba(255, 150, 60, 0.75)); /* heat glow */
 }
 .go2 .s2-capsule {
   animation: sway 3.4s ease-in-out infinite;
 }
 @keyframes sway {
-  0%, 100% { transform: translateX(-30px) rotate(-14deg); }
-  50%      { transform: translateX(30px) rotate(14deg); }
+  0%,
+  100% {
+    transform: translateX(-30px) rotate(-14deg);
+  }
+  50% {
+    transform: translateX(30px) rotate(14deg);
+  }
 }
 
 /* ----- scene 3: land + bouncing airbag ----- */
@@ -1045,11 +1082,33 @@ body {
   transform: translateY(105%);
   transition: transform 1s ease;
   background:
-    radial-gradient(circle at 15% 40%, rgba(0, 0, 0, 0.25) 0 6px, transparent 7px),
-    radial-gradient(circle at 62% 55%, rgba(0, 0, 0, 0.2) 0 9px, transparent 10px),
-    radial-gradient(circle at 85% 35%, rgba(255, 255, 255, 0.08) 0 5px, transparent 6px),
+    radial-gradient(
+      circle at 15% 40%,
+      rgba(0, 0, 0, 0.25) 0 6px,
+      transparent 7px
+    ),
+    radial-gradient(
+      circle at 62% 55%,
+      rgba(0, 0, 0, 0.2) 0 9px,
+      transparent 10px
+    ),
+    radial-gradient(
+      circle at 85% 35%,
+      rgba(255, 255, 255, 0.08) 0 5px,
+      transparent 6px
+    ),
     linear-gradient(to bottom, #a8481f 0%, #6b2a12 60%, #3d170a 100%);
-  clip-path: polygon(0 14%, 12% 6%, 28% 12%, 45% 3%, 63% 10%, 80% 5%, 100% 12%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 14%,
+    12% 6%,
+    28% 12%,
+    45% 3%,
+    63% 10%,
+    80% 5%,
+    100% 12%,
+    100% 100%,
+    0 100%
+  );
 }
 .go3 .s3-land {
   transform: none;
@@ -1058,26 +1117,53 @@ body {
 .s3-airbag {
   position: absolute;
   left: 50%;
-  bottom: calc(30% - 24px);    /* tweak so the airbag rests on the land */
+  bottom: calc(30% - 24px); /* tweak so the airbag rests on the land */
   width: 190px;
   height: 190px;
   margin-left: -95px;
   transform: translate(-70px, -100vh);
 }
 .go3 .s3-airbag {
-  animation: airbag-bounce var(--bounce-time, 3600ms) linear var(--bounce-delay, 1200ms) both;
+  animation: airbag-bounce var(--bounce-time, 3600ms) linear
+    var(--bounce-delay, 1200ms) both;
 }
 /* falls, then bounces 3 times, each lower than the last, then rests */
 @keyframes airbag-bounce {
-  0%   { transform: translate(-70px, -100vh) rotate(0deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
-  28%  { transform: translate(-30px, 0) rotate(120deg);     animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-  42%  { transform: translate(0, -200px) rotate(250deg);    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
-  56%  { transform: translate(25px, 0) rotate(360deg);      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-  66%  { transform: translate(40px, -80px) rotate(430deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
-  76%  { transform: translate(50px, 0) rotate(490deg);      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-  83%  { transform: translate(54px, -26px) rotate(520deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
-  90%  { transform: translate(58px, 0) rotate(540deg);      animation-timing-function: ease-out; }
-  100% { transform: translate(60px, 0) rotate(550deg); }
+  0% {
+    transform: translate(-70px, -100vh) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  28% {
+    transform: translate(-30px, 0) rotate(120deg);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  42% {
+    transform: translate(0, -200px) rotate(250deg);
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  56% {
+    transform: translate(25px, 0) rotate(360deg);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  66% {
+    transform: translate(40px, -80px) rotate(430deg);
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  76% {
+    transform: translate(50px, 0) rotate(490deg);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  83% {
+    transform: translate(54px, -26px) rotate(520deg);
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+  90% {
+    transform: translate(58px, 0) rotate(540deg);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translate(60px, 0) rotate(550deg);
+  }
 }
 
 /* ----- sentence + button ----- */
@@ -1109,6 +1195,180 @@ body {
   pointer-events: none;
 }
 .c7-btn.ready {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease;
+}
+
+/* ---------- chapter 8 ---------- */
+
+/* chapter 7 content leaves; the sky and the land stay */
+.chapter7.chapter8 .c7-text,
+.chapter7.chapter8 .c7-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.chapter8 .s3-airbag {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.chapter8 .wind {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.chapter8-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ----- the rover (JS moves it) ----- */
+.rover8 {
+  position: absolute;
+  left: 0;
+  bottom: 33%; /* the top line of the land */
+  width: 170px;
+  height: 130px;
+  opacity: 0;
+  will-change: transform;
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.35));
+}
+.chapter8 .rover8 {
+  opacity: 1;
+}
+.rover-flip,
+.rover-model {
+  position: absolute;
+  inset: 0;
+}
+.rover-model canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+/* small bumps while driving */
+.rover8.driving .rover-model {
+  animation: rover-bob 0.35s ease-in-out infinite;
+}
+@keyframes rover-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(-0.8deg);
+  }
+}
+
+/* ----- sentence + guide message (top of the page) ----- */
+.c8-caption {
+  position: absolute;
+  top: 9%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  pointer-events: none;
+}
+.c8-text {
+  margin: 0;
+  text-align: center;
+  color: white;
+  font-family: "Anton SC", sans-serif;
+  font-size: clamp(18px, 5.2vw, 24px);
+  line-height: 1.35;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.c8-text.show {
+  opacity: 1;
+}
+.c8-hint {
+  margin: 0;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.c8-hint.show {
+  opacity: 1;
+}
+
+/* ----- arrows ----- */
+.c8-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 64px;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.c8-controls.show {
+  opacity: 1;
+}
+.c8-arrow {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  pointer-events: none;
+  touch-action: none; /* holding a button must not scroll the page */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.1s,
+    opacity 0.2s,
+    background 0.2s;
+}
+.c8-controls.show .c8-arrow {
+  pointer-events: auto;
+}
+.c8-arrow:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.35);
+}
+.c8-arrow.blocked {
+  /* the left wall */
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ----- continue ----- */
+.c8-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  pointer-events: none;
+}
+.c8-btn.ready {
   opacity: 1;
   pointer-events: auto;
   transition: opacity 0.6s ease;
