@@ -625,10 +625,202 @@ document.getElementById("continue7").addEventListener("click", () => {
   runChapter8();
 });
 
+
+
+
+
+
+
+/* ---------- chapter 9 ---------- */
+
+const C9 = {
+  startDelay: 1200,      // after clicking continue: the new land rises, then the rover fades in
+  textDelay: 600,        // pause before the sentence and voice start
+  controlsDelay: 400,    // pause after the voice ends, before the arrows appear
+  startX: 24,            // where the rover appears (px from the left edge)
+  speed: 70,             // driving speed while moving (px per second); slower than chapter 8
+  goMin: 0.5, goMax: 1.1,        // how long it runs before it stalls (seconds)
+  stallMin: 0.25, stallMax: 0.7, // how long it stalls (seconds)
+  lean: 4,               // limp angle while moving (degrees)
+  sink: 16,              // lowers the rover onto the ground (px)
+  facesRight: true,      // same setting as chapter 8
+};
+
+const C9_TEXT =
+  "Oppy explored the Martian surface for several years, facing many difficulties, like losing steering on one of its front wheels and suffering a stuck heater.";
+const C9_VOICE = "../voiceover/scenes/scene9.mp4";
+const C9_HINT_DRIVE = "Opportunity is damaged. Drive it to the right";
+const C9_HINT_BLOCKED = "The way is blocked on this side. Drive to the right!";
+
+// the top edge of the new land: the same numbers as the clip-path in .land9 [x %, y % of the land height]
+const RIDGE9 = [[0, 6], [14, 2], [28, 10], [42, 18], [56, 12], [70, 4], [84, 12], [100, 6]];
+function ridgeOf(points, xPct) {
+  const p = Math.max(0, Math.min(100, xPct));
+  for (let i = 1; i < points.length; i++) {
+    if (p <= points[i][0]) {
+      const [x0, y0] = points[i - 1];
+      const [x1, y1] = points[i];
+      return y0 + (y1 - y0) * ((p - x0) / (x1 - x0));
+    }
+  }
+  return points[points.length - 1][1];
+}
+
+const rand = (a, b) => a + Math.random() * (b - a);
+let chapter9Started = false;
+
+async function runChapter9() {
+  const rover = document.getElementById("rover8");        // the same rover as chapter 8
+  const flip = rover.querySelector(".rover-flip");
+  const land = document.querySelector(".land9");
+  const text = document.getElementById("c9Text");
+  const hint = document.getElementById("c9Hint");
+  const controls = document.getElementById("c9Controls");
+  const leftBtn = document.getElementById("c9Left");
+  const rightBtn = document.getElementById("c9Right");
+
+  const rw = rover.offsetWidth;
+  let x = C9.startX;
+  let dir = 1;                 // last direction: 1 = right, -1 = left
+  let hold = 0;                // arrow being held: -1, 0 or 1
+  let active = false;          // true while the user can drive
+  let finished = false;
+  let moving = false;
+  let hintMode = null;
+  let go = rand(C9.goMin, C9.goMax);   // time left before the next stall
+  let stall = 0;                       // time left in the current stall
+  let lurch = 1;                       // speed multiplier of the current run
+
+  rover.classList.remove("driving");
+  rover.classList.add("broken");
+  rover.style.bottom = "36%";          // the top line of the new land
+
+  function setHint(mode) {
+    if (hintMode === mode) return;
+    hintMode = mode;
+    hint.classList.remove("show");
+    setTimeout(() => {
+      if (finished) return;
+      hint.textContent = mode === "blocked" ? C9_HINT_BLOCKED : C9_HINT_DRIVE;
+      hint.classList.add("show");
+    }, 350);
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const w = app.clientWidth;
+    const landH = land.offsetHeight;
+
+    // broken movement: runs, stalls, lurches again at a random speed
+    moving = false;
+    if (active && hold !== 0) {
+      dir = hold;
+      if (stall > 0) {
+        stall -= dt;
+      } else {
+        moving = true;
+        x += hold * C9.speed * lurch * dt;
+        if (x < 0) x = 0;                         // the left side is blocked
+        if (x <= 0 && hold === -1) moving = false;
+        go -= dt;
+        if (go <= 0) {
+          stall = rand(C9.stallMin, C9.stallMax);
+          go = rand(C9.goMin, C9.goMax);
+          lurch = rand(0.6, 1.5);
+        }
+      }
+    }
+
+    // follow the land and tilt with its slope
+    const cx = x + rw / 2;
+    const depth = (px) => (ridgeOf(RIDGE9, (px / w) * 100) / 100) * landH;
+    const ty = depth(cx) + C9.sink;
+    const ang = (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
+
+    const flipX = (dir < 0) === C9.facesRight ? -1 : 1;
+    flip.style.transform = `scaleX(${flipX}) rotate(${moving ? C9.lean : 0}deg)`;
+    rover.classList.toggle("driving", moving);
+
+    if (active) {
+      const atWall = x <= 0.5;
+      leftBtn.classList.toggle("blocked", atWall);
+      if (atWall && hold === -1) setHint("blocked");
+      else if (x > 30) setHint("drive");
+    }
+
+    // the rover left the screen on the right
+    if (active && x >= w) {
+      finished = true;
+      active = false;
+      hold = 0;
+      rover.style.opacity = 0;
+      controls.classList.remove("show");
+      hint.classList.remove("show");
+      document.getElementById("continue9").classList.add("ready");
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // arrows: hold to drive
+  function bindArrow(btn, value) {
+    btn.addEventListener("pointerdown", (e) => {
+      if (!active) return;
+      e.preventDefault();
+      hold = value;
+      btn.setPointerCapture(e.pointerId);
+    });
+    ["pointerup", "pointercancel"].forEach((ev) =>
+      btn.addEventListener(ev, () => { if (hold === value) hold = 0; })
+    );
+    btn.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  bindArrow(leftBtn, -1);
+  bindArrow(rightBtn, 1);
+
+  // keyboard (desktop)
+  window.addEventListener("keydown", (e) => {
+    if (!active) return;
+    if (e.key === "ArrowLeft") hold = -1;
+    if (e.key === "ArrowRight") hold = 1;
+  });
+  window.addEventListener("keyup", (e) => {
+    if ((e.key === "ArrowLeft" && hold === -1) || (e.key === "ArrowRight" && hold === 1)) hold = 0;
+  });
+
+  requestAnimationFrame(tick);
+
+  // 1. the new land rises, then the rover fades in at the left
+  await wait(C9.startDelay);
+  rover.style.opacity = 1;
+
+  // 2. the sentence and its voice
+  await wait(C9.textDelay);
+  text.textContent = C9_TEXT;
+  text.classList.add("show");
+  await playVoice(C9_VOICE);
+
+  // 3. arrows and guide message; the user drives (the loop above handles the ending)
+  await wait(C9.controlsDelay);
+  active = true;
+  controls.classList.add("show");
+  setHint("drive");
+}
+
+// chapter 8 continue -> chapter 9
 document.getElementById("continue8").addEventListener("click", () => {
-  console.log("continue 8"); // e.g. app.classList.add("chapter9");
+  if (chapter9Started) return;
+  chapter9Started = true;
+  app.classList.add("chapter9");
+  runChapter9();
 });
 
+document.getElementById("continue9").addEventListener("click", () => {
+  console.log("continue 9"); // e.g. app.classList.add("chapter10");
+});
 
 
 
