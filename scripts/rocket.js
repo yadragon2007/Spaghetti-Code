@@ -45,7 +45,7 @@ function loadNormalized(src, size, rotation = [0, 0, 0]) {
 
 /* default size and starting spot (x, y) of each model; override any of them from carousel.js */
 const DEFAULTS = {
-  rocket: { size: 4.6, position: [-1.4, 0] },
+  rocket: { size: 4.6, position: [0, 0] }, // centered, so it stands on the CSS pad
   rover: { size: 0.9, position: [1.5, 1.9] },
   capsule: { size: 1.2, position: [1.5, 0.3] },
   stage: { size: 1.4, position: [1.5, -1.6] },

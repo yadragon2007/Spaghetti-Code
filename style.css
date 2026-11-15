@@ -720,19 +720,93 @@ body {
 
 /* ---------- chapter 6 ---------- */
 
+/* pure CSS launch scene: a daytime Earth sky, no clouds */
 .launch-bg {
   position: absolute;
-  inset: -25% 0 25% 0; /* same size, moved up by 20% of the screen */
+  inset: 0;
   z-index: 0;
   opacity: 0;
   pointer-events: none;
-  background-color: #000;
-  background-image: url("/images/Launch.jpg");
-  background-size: cover;
-  background-position: center;
-  /* the bottom dissolves into the star background */
-  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+  background: linear-gradient(
+    to bottom,
+    #14498f 0%,
+    #2f6cb0 30%,
+    #6ea3d4 52%,
+    #b3d2e8 62%,
+    #d8e8f2 66%,
+    transparent 66.5%
+  );
+}
+
+/* the almost-flat brown ground (the rocket stands where it meets the horizon) */
+.launch-bg::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  background: linear-gradient(to bottom, #9a6a3f 0%, #7d5230 22%, #63401f 100%);
+  /* horizon line with a few centimeters of bump - almost flat */
+  clip-path: polygon(
+    0% 1.6%,
+    14% 0.7%,
+    30% 1.4%,
+    48% 0.3%,
+    62% 1.1%,
+    80% 0.4%,
+    100% 1.2%,
+    100% 100%,
+    0% 100%
+  );
+}
+
+/* a thin haze band where the ground meets the sky */
+.launch-bg::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 32.5%;
+  height: 4%;
+  background: linear-gradient(to bottom, transparent, rgba(216, 232, 242, 0.5));
+}
+
+/* the gray launch pad, centered where the rocket stands */
+.launch-stage {
+  position: absolute;
+  left: 50%;
+  bottom: 34.6%; /* its top surface meets the rocket's base, its bottom sits on the horizon */
+  width: 30%;
+  height: 6%;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, #8d9199 0%, #7c8089 55%, #6d7179 100%);
+  border-radius: 3px;
+}
+/* the darker front face, a little of depth */
+.launch-stage::before {
+  content: "";
+  position: absolute;
+  left: -1.5%;
+  right: -1.5%;
+  top: 100%;
+  height: 38%;
+  background: #52565e;
+  border-radius: 0 0 3px 3px;
+}
+/* the soft shadow on the ground */
+.launch-stage::after {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: -9%;
+  height: 46%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.4) 0%,
+    transparent 70%
+  );
 }
 
 /* blueprint fades out, then the launch photo fades in */
@@ -859,13 +933,15 @@ body {
   pointer-events: none;
 }
 
+/* the story text sits on the brown ground, under the launch pad
+   (white on brown reads better than white on the blue sky) */
 .c6-text {
   position: absolute;
-  bottom: 130px;
   left: 0;
   right: 0;
   margin: 0;
   padding: 0 24px;
+  bottom: 6%;
   text-align: center;
   color: white;
   font-family: "Anton SC", sans-serif;
@@ -2155,7 +2231,8 @@ body {
 
 /* the dead rover: dark, grey, no life in it (JS adds .dead) */
 .rover8.dead {
-  filter: grayscale(0.85) brightness(0.55) drop-shadow(0 8px 6px rgba(0, 0, 0, 0.4));
+  filter: grayscale(0.85) brightness(0.55)
+    drop-shadow(0 8px 6px rgba(0, 0, 0, 0.4));
 }
 .rover8.dead .rover-model {
   animation: none !important;
@@ -2256,6 +2333,9 @@ body {
   transition: opacity 0.4s ease;
 }
 
+#chapter16 {
+  font-family: "Patrick Hand" !important;
+}
 /* the rover moves to the top of the page and scales down a bit,
    as if it is moving up into the sky (it keeps spinning: the 3D model) */
 .chapter16 .rover8 {
@@ -2310,7 +2390,9 @@ body {
   text-align: center;
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 }
 .c16-card.show {
   opacity: 1;
