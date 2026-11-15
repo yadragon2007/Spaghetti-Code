@@ -1,4 +1,4 @@
-import { createViewer } from "./viewer.js";
+import { createViewer, disposeViewers } from "./viewer.js";
 import { createRocketPuzzle } from "./rocket.js";
 import { playVoice, stopVoice } from "./voice.js";
 
@@ -67,6 +67,7 @@ rovers.forEach((rover) => {
     azimuth: 40,
     headLight: 3,
     studio: 1.5,
+    group: "carousel", // <- add
   });
 });
 
@@ -90,6 +91,7 @@ function selectRover(rover) {
       azimuth: 90,
       headLight: 3,
       studio: 1.5,
+      group: "flyers", // <- add (same in the #flyer2 call)
     },
   );
   // flying mars
@@ -102,15 +104,21 @@ function selectRover(rover) {
       azimuth: -90, // faces left, since this one flies right to left
       headLight: 3,
       studio: 1.5,
+      group: "flyers", // <- add (same in the #flyer2 call)
     },
   );
   app.classList.add("story");
   chapterVoice("../voiceover/scenes/scene1.mp4", "continue");
+  setTimeout(() => {
+    disposeViewers("carousel");
+    window.mars.dispose();
+  }, 1200);
 }
 
 document.getElementById("continue").addEventListener("click", () => {
   app.classList.add("chapter2");
   chapterVoice("../voiceover/scenes/scene2.mp4", "continue2");
+  setTimeout(() => disposeViewers("flyers"), 600); // <- add
 });
 
 let chapter3Started = false;
@@ -128,6 +136,7 @@ document.getElementById("continue2").addEventListener("click", () => {
     headLight: 2,
     studio: 0.5,
     fit: true,
+    group: "duo",
   });
 
   // the other object on the right (placeholder model)
@@ -142,6 +151,7 @@ document.getElementById("continue2").addEventListener("click", () => {
       headLight: 3,
       studio: 1.5,
       fit: true,
+      group: "duo",
     },
   );
 
@@ -155,6 +165,7 @@ document.getElementById("continue3").addEventListener("click", () => {
   if (chapter4Started) return;
   chapter4Started = true;
 
+  setTimeout(() => disposeViewers("duo"), 600);
   createViewer(
     document.getElementById("c4Rover"),
     "../models/opportunity.glb",
@@ -165,6 +176,7 @@ document.getElementById("continue3").addEventListener("click", () => {
       azimuth: 40,
       headLight: 8,
       studio: 9,
+      group: "c4",
     },
   );
 
@@ -198,6 +210,7 @@ let rocketPuzzle = null;
 document.getElementById("continue4").addEventListener("click", () => {
   if (chapter5Started) return;
   chapter5Started = true;
+  setTimeout(() => disposeViewers("c4"), 600);
 
   createRocketPuzzle(document.getElementById("c5Stage"), {
     models: {
@@ -366,6 +379,7 @@ async function runChapter7() {
     studio: 0.5,
     fit: true,
     fitPadding: 1.05,
+    group: "s1",
   });
   createViewer(
     document.getElementById("s1Capsule"),
@@ -378,6 +392,7 @@ async function runChapter7() {
       studio: 1.5,
       fit: true,
       fitPadding: 1.6,
+      group: "s1",
     },
   );
   createViewer(document.getElementById("s2Capsule"), "../models/capsule.glb", {
@@ -387,6 +402,7 @@ async function runChapter7() {
     studio: 1.5,
     fit: true,
     fitPadding: 1.05,
+    group: "s2",
   });
   createViewer(document.getElementById("s3Airbag"), "../models/airbag.glb", {
     elevation: 15,
@@ -395,6 +411,7 @@ async function runChapter7() {
     studio: 1.5,
     fit: true,
     fitPadding: 1.05,
+    group: "s3",
   });
 
   function setScene(n) {
@@ -420,10 +437,12 @@ async function runChapter7() {
   // scene 2: red atmosphere, falling capsule
   app.classList.add("sky-on"); // the sky and wind stay until the end
   setScene(2);
+  setTimeout(() => disposeViewers("s1"), 1000);
   await say(1, C7.s2TextDelay);
 
   // scene 3: land + bouncing airbag
   setScene(3);
+  setTimeout(() => disposeViewers("s2"), 1000);
   await say(2, C7.s3TextDelay, true); // the last sentence stays on screen
 
   document.getElementById("continue7").classList.add("ready");
@@ -433,26 +452,22 @@ async function runChapter7() {
 document.getElementById("continue6").addEventListener("click", () => {
   if (chapter7Started) return;
   chapter7Started = true;
+  setTimeout(() => rocketPuzzle.dispose(), 700);
   app.classList.add("chapter7");
   runChapter7();
 });
 
-
-
-
-
-
 /* ---------- chapter 8 ---------- */
 
 const C8 = {
-  startDelay: 900,       // after clicking continue: wait for the airbag, text and wind to fade
-  driveIn: 3500,         // how long the rover takes to drive in from the left (ms)
-  stopAt: 0.38,          // where it stops: 0 = left edge, 1 = right edge (its center)
-  textDelay: 600,        // pause after it stops, before the sentence and voice start
-  controlsDelay: 400,    // pause after the voice ends, before the arrows appear
-  speed: 150,            // driving speed while an arrow is held (px per second)
-  sink: 16,              // lowers the rover onto the ground (px)
-  facesRight: true,      // set to false if the model faces left when it loads
+  startDelay: 900, // after clicking continue: wait for the airbag, text and wind to fade
+  driveIn: 3500, // how long the rover takes to drive in from the left (ms)
+  stopAt: 0.38, // where it stops: 0 = left edge, 1 = right edge (its center)
+  textDelay: 600, // pause after it stops, before the sentence and voice start
+  controlsDelay: 400, // pause after the voice ends, before the arrows appear
+  speed: 150, // driving speed while an arrow is held (px per second)
+  sink: 16, // lowers the rover onto the ground (px)
+  facesRight: true, // set to false if the model faces left when it loads
 };
 
 const C8_TEXT =
@@ -462,7 +477,15 @@ const C8_HINT_DRIVE = "Use the arrows to drive Opportunity to the right";
 const C8_HINT_BLOCKED = "The way is blocked on this side. Drive to the right!";
 
 // the top edge of the land: the same numbers as the clip-path in .s3-land [x %, y % of the land height]
-const RIDGE = [[0, 14], [12, 6], [28, 12], [45, 3], [63, 10], [80, 5], [100, 12]];
+const RIDGE = [
+  [0, 14],
+  [12, 6],
+  [28, 12],
+  [45, 3],
+  [63, 10],
+  [80, 5],
+  [100, 12],
+];
 function ridgeAt(xPct) {
   for (let i = 1; i < RIDGE.length; i++) {
     if (xPct <= RIDGE[i][0]) {
@@ -488,7 +511,7 @@ async function runChapter8() {
   const rightBtn = document.getElementById("c8Right");
 
   createViewer(model, "../models/opportunity.glb", {
-    azimuth: 90,                 // side view; try -90 if it looks backwards
+    azimuth: 90, // side view; try -90 if it looks backwards
     elevation: 8,
     headLight: 3,
     studio: 1.5,
@@ -497,12 +520,12 @@ async function runChapter8() {
   });
 
   const rw = rover.offsetWidth;
-  let x = -rw;                   // starts just outside the left edge
-  let dir = 1;                   // last direction: 1 = right, -1 = left
-  let hold = 0;                  // arrow being held: -1, 0 or 1
-  let active = false;            // true while the user can drive
+  let x = -rw; // starts just outside the left edge
+  let dir = 1; // last direction: 1 = right, -1 = left
+  let hold = 0; // arrow being held: -1, 0 or 1
+  let active = false; // true while the user can drive
   let finished = false;
-  let auto = null;               // the automatic drive-in
+  let auto = null; // the automatic drive-in
   let hintMode = null;
 
   function setHint(mode) {
@@ -530,7 +553,7 @@ async function runChapter8() {
 
     if (auto) {
       const t = Math.max(0, Math.min((now - auto.t0) / auto.ms, 1));
-      x = auto.from + (auto.to - auto.from) * (1 - Math.pow(1 - t, 3));   // slows down as it stops
+      x = auto.from + (auto.to - auto.from) * (1 - Math.pow(1 - t, 3)); // slows down as it stops
       dir = 1;
       if (t >= 1) {
         const done = auto.resolve;
@@ -540,14 +563,14 @@ async function runChapter8() {
     } else if (active && hold !== 0) {
       x += hold * C8.speed * dt;
       dir = hold;
-      if (x < 0) x = 0;          // the left side is blocked
+      if (x < 0) x = 0; // the left side is blocked
     }
 
     // follow the ridge of the land
     const xPct = Math.max(0, Math.min(100, ((x + rw / 2) / w) * 100));
     const ty = (ridgeAt(xPct) / 100) * land.offsetHeight + C8.sink;
     rover.style.transform = `translate(${x}px, ${ty}px)`;
-    flip.style.transform = (dir < 0) === C8.facesRight ? "scaleX(-1)" : "none";
+    flip.style.transform = dir < 0 === C8.facesRight ? "scaleX(-1)" : "none";
     rover.classList.toggle("driving", !!auto || (active && hold !== 0));
 
     if (active) {
@@ -566,7 +589,7 @@ async function runChapter8() {
       controls.classList.remove("show");
       hint.classList.remove("show");
       document.getElementById("continue8").classList.add("ready");
-      return;                    // stop the loop
+      return; // stop the loop
     }
     requestAnimationFrame(tick);
   }
@@ -580,7 +603,9 @@ async function runChapter8() {
       btn.setPointerCapture(e.pointerId);
     });
     ["pointerup", "pointercancel"].forEach((ev) =>
-      btn.addEventListener(ev, () => { if (hold === value) hold = 0; })
+      btn.addEventListener(ev, () => {
+        if (hold === value) hold = 0;
+      }),
     );
     btn.addEventListener("contextmenu", (e) => e.preventDefault());
   }
@@ -594,7 +619,11 @@ async function runChapter8() {
     if (e.key === "ArrowRight") hold = 1;
   });
   window.addEventListener("keyup", (e) => {
-    if ((e.key === "ArrowLeft" && hold === -1) || (e.key === "ArrowRight" && hold === 1)) hold = 0;
+    if (
+      (e.key === "ArrowLeft" && hold === -1) ||
+      (e.key === "ArrowRight" && hold === 1)
+    )
+      hold = 0;
   });
 
   requestAnimationFrame(tick);
@@ -621,29 +650,26 @@ async function runChapter8() {
 document.getElementById("continue7").addEventListener("click", () => {
   if (chapter8Started) return;
   chapter8Started = true;
+  setTimeout(() => disposeViewers("s3"), 700);
   app.classList.add("chapter8");
   runChapter8();
 });
 
-
-
-
-
-
-
 /* ---------- chapter 9 ---------- */
 
 const C9 = {
-  startDelay: 1200,      // after clicking continue: the new land rises, then the rover fades in
-  textDelay: 600,        // pause before the sentence and voice start
-  controlsDelay: 400,    // pause after the voice ends, before the arrows appear
-  startX: 24,            // where the rover appears (px from the left edge)
-  speed: 70,             // driving speed while moving (px per second); slower than chapter 8
-  goMin: 0.5, goMax: 1.1,        // how long it runs before it stalls (seconds)
-  stallMin: 0.25, stallMax: 0.7, // how long it stalls (seconds)
-  lean: 4,               // limp angle while moving (degrees)
-  sink: 16,              // lowers the rover onto the ground (px)
-  facesRight: true,      // same setting as chapter 8
+  startDelay: 1200, // after clicking continue: the new land rises, then the rover fades in
+  textDelay: 600, // pause before the sentence and voice start
+  controlsDelay: 400, // pause after the voice ends, before the arrows appear
+  startX: 24, // where the rover appears (px from the left edge)
+  speed: 70, // driving speed while moving (px per second); slower than chapter 8
+  goMin: 0.5,
+  goMax: 1.1, // how long it runs before it stalls (seconds)
+  stallMin: 0.25,
+  stallMax: 0.7, // how long it stalls (seconds)
+  lean: 4, // limp angle while moving (degrees)
+  sink: 16, // lowers the rover onto the ground (px)
+  facesRight: true, // same setting as chapter 8
 };
 
 const C9_TEXT =
@@ -653,7 +679,16 @@ const C9_HINT_DRIVE = "Opportunity is damaged. Drive it to the right";
 const C9_HINT_BLOCKED = "The way is blocked on this side. Drive to the right!";
 
 // the top edge of the new land: the same numbers as the clip-path in .land9 [x %, y % of the land height]
-const RIDGE9 = [[0, 6], [14, 2], [28, 10], [42, 18], [56, 12], [70, 4], [84, 12], [100, 6]];
+const RIDGE9 = [
+  [0, 6],
+  [14, 2],
+  [28, 10],
+  [42, 18],
+  [56, 12],
+  [70, 4],
+  [84, 12],
+  [100, 6],
+];
 function ridgeOf(points, xPct) {
   const p = Math.max(0, Math.min(100, xPct));
   for (let i = 1; i < points.length; i++) {
@@ -670,7 +705,7 @@ const rand = (a, b) => a + Math.random() * (b - a);
 let chapter9Started = false;
 
 async function runChapter9() {
-  const rover = document.getElementById("rover8");        // the same rover as chapter 8
+  const rover = document.getElementById("rover8"); // the same rover as chapter 8
   const flip = rover.querySelector(".rover-flip");
   const land = document.querySelector(".land9");
   const text = document.getElementById("c9Text");
@@ -681,19 +716,19 @@ async function runChapter9() {
 
   const rw = rover.offsetWidth;
   let x = C9.startX;
-  let dir = 1;                 // last direction: 1 = right, -1 = left
-  let hold = 0;                // arrow being held: -1, 0 or 1
-  let active = false;          // true while the user can drive
+  let dir = 1; // last direction: 1 = right, -1 = left
+  let hold = 0; // arrow being held: -1, 0 or 1
+  let active = false; // true while the user can drive
   let finished = false;
   let moving = false;
   let hintMode = null;
-  let go = rand(C9.goMin, C9.goMax);   // time left before the next stall
-  let stall = 0;                       // time left in the current stall
-  let lurch = 1;                       // speed multiplier of the current run
+  let go = rand(C9.goMin, C9.goMax); // time left before the next stall
+  let stall = 0; // time left in the current stall
+  let lurch = 1; // speed multiplier of the current run
 
   rover.classList.remove("driving");
   rover.classList.add("broken");
-  rover.style.bottom = "36%";          // the top line of the new land
+  rover.style.bottom = "36%"; // the top line of the new land
 
   function setHint(mode) {
     if (hintMode === mode) return;
@@ -722,7 +757,7 @@ async function runChapter9() {
       } else {
         moving = true;
         x += hold * C9.speed * lurch * dt;
-        if (x < 0) x = 0;                         // the left side is blocked
+        if (x < 0) x = 0; // the left side is blocked
         if (x <= 0 && hold === -1) moving = false;
         go -= dt;
         if (go <= 0) {
@@ -737,10 +772,11 @@ async function runChapter9() {
     const cx = x + rw / 2;
     const depth = (px) => (ridgeOf(RIDGE9, (px / w) * 100) / 100) * landH;
     const ty = depth(cx) + C9.sink;
-    const ang = (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    const ang =
+      (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
     rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
 
-    const flipX = (dir < 0) === C9.facesRight ? -1 : 1;
+    const flipX = dir < 0 === C9.facesRight ? -1 : 1;
     flip.style.transform = `scaleX(${flipX}) rotate(${moving ? C9.lean : 0}deg)`;
     rover.classList.toggle("driving", moving);
 
@@ -774,7 +810,9 @@ async function runChapter9() {
       btn.setPointerCapture(e.pointerId);
     });
     ["pointerup", "pointercancel"].forEach((ev) =>
-      btn.addEventListener(ev, () => { if (hold === value) hold = 0; })
+      btn.addEventListener(ev, () => {
+        if (hold === value) hold = 0;
+      }),
     );
     btn.addEventListener("contextmenu", (e) => e.preventDefault());
   }
@@ -788,7 +826,11 @@ async function runChapter9() {
     if (e.key === "ArrowRight") hold = 1;
   });
   window.addEventListener("keyup", (e) => {
-    if ((e.key === "ArrowLeft" && hold === -1) || (e.key === "ArrowRight" && hold === 1)) hold = 0;
+    if (
+      (e.key === "ArrowLeft" && hold === -1) ||
+      (e.key === "ArrowRight" && hold === 1)
+    )
+      hold = 0;
   });
 
   requestAnimationFrame(tick);
@@ -821,13 +863,6 @@ document.getElementById("continue8").addEventListener("click", () => {
 document.getElementById("continue9").addEventListener("click", () => {
   console.log("continue 9"); // e.g. app.classList.add("chapter10");
 });
-
-
-
-
-
-
-
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { disposeThree } from "./viewer.js";
 
 const loader = new GLTFLoader();
 const rad = THREE.MathUtils.degToRad;
@@ -305,7 +306,8 @@ export async function createRocketPuzzle(container, opts = {}) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
-  new ResizeObserver(resize).observe(container);
+  const ro = new ResizeObserver(resize);
+  ro.observe(container);
   resize();
   /* ---------- launch ---------- */
   // height at which even the rocket's deepest part is out of view, plus a margin
@@ -356,5 +358,10 @@ export async function createRocketPuzzle(container, opts = {}) {
     renderer.render(scene, camera);
   });
 
-  return { launch };
+  function dispose() {
+    renderer.setAnimationLoop(null);
+    ro.disconnect();
+    disposeThree(renderer, scene, pmrem);
+  }
+  return { launch, dispose };
 }

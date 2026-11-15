@@ -4,7 +4,30 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 const loader = new GLTFLoader();
 const rad = THREE.MathUtils.degToRad;
+const registry = new Map(); // group name -> viewers
 
+export function disposeViewers(group) {
+  (registry.get(group) || []).forEach((v) => v.dispose());
+  registry.delete(group);
+}
+
+export function disposeThree(renderer, scene, pmrem) {
+  scene.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach((m) => {
+        for (const k in m) if (m[k] && m[k].isTexture) m[k].dispose();
+        m.dispose();
+      });
+    }
+  });
+  if (scene.environment) scene.environment.dispose();
+  if (pmrem) pmrem.dispose();
+  renderer.dispose();
+  renderer.forceContextLoss();
+  renderer.domElement.remove();
+}
 export function createViewer(container, src, opts = {}) {
   const {
     rotate = false, // true = spins
@@ -19,6 +42,7 @@ export function createViewer(container, src, opts = {}) {
     tilt = [0, 0, 0], // static orientation in degrees
     fit = false, // true = zoom automatically so the whole model always fits the box
     fitPadding = 1.15, // 1 = touching the edges, bigger = more space around
+    group = null,
   } = opts;
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -65,10 +89,13 @@ export function createViewer(container, src, opts = {}) {
   scene.add(pivot);
 
   let visible = true;
+  let disposed = false;
   let raf = 0;
   const clock = new THREE.Clock();
 
-  const render = () => renderer.render(scene, camera);
+  const render = () => {
+    if (!disposed) renderer.render(scene, camera);
+  };
 
   function loop() {
     raf = 0;
@@ -88,6 +115,7 @@ export function createViewer(container, src, opts = {}) {
   loader.load(
     src,
     (gltf) => {
+      if (disposed) return;
       const model = gltf.scene;
       model.traverse((o) => {
         if (o.isMesh && o.material) {
@@ -111,21 +139,38 @@ export function createViewer(container, src, opts = {}) {
     (e) => console.error("Could not load " + src, e),
   );
 
-  // follow the container size
-  new ResizeObserver(() => {
+  const resizeObs = new ResizeObserver(() => {
     const w = container.clientWidth,
       h = container.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    placeCamera(); // <- add this line
+    placeCamera();
     render();
-  }).observe(container);
-  
+  });
+  resizeObs.observe(container);
+
   // don't render slides that are scrolled out of view
-  new IntersectionObserver(([entry]) => {
+  const visObs = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     if (visible) start();
-  }).observe(container);
+  });
+  visObs.observe(container);
+
+  function dispose() {
+    disposed = true;
+    visible = false;
+    cancelAnimationFrame(raf);
+    resizeObs.disconnect();
+    visObs.disconnect();
+    disposeThree(renderer, scene, pmrem);
+  }
+
+  const handle = { dispose };
+  if (group) {
+    if (!registry.has(group)) registry.set(group, []);
+    registry.get(group).push(handle);
+  }
+  return handle;
 }

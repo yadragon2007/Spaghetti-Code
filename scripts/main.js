@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { playVoice, waitForTap } from "./voice.js";
+import { disposeThree } from "./viewer.js";
 /* =====================================================
    SETTINGS
 ===================================================== */
@@ -293,4 +294,9 @@ window.mars = {
   dots: (on = true) => container.classList.toggle("no-dots", !on),
   only: (on = true) => container.classList.toggle("focus-only", on),
   back: () => app.classList.remove("explore"),
+  dispose: () => {
+    renderer.setAnimationLoop(null);
+    controls.dispose();
+    disposeThree(renderer, scene, null);
+  },
 };
