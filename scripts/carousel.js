@@ -1780,8 +1780,117 @@ document.getElementById("continue12").addEventListener("click", () => {
   runChapter13();
 });
 
+/* ---------- chapter 14 ---------- */
+
+const C14 = {
+  startDelay: 1400, // after clicking continue: the land rises, then the rover appears
+  controlsDelay: 400, // pause after the rover appears, before the arrows appear
+  textDelay: 400, // pause after the arrows appear, before the sentence and voice start
+  sink: 16, // lowers the rover onto the ground (px)
+};
+
+const C14_TEXT =
+  "Opportunity last communicated with Earth on June 10th, 2018. Its final resting place was the Perseverance Valley.";
+const C14_VOICE = "../voiceover/scenes/scene14.mp4";
+const C14_HINT = "No response from Opportunity";
+
+// the top edge of the land: the same numbers as the clip-path in .land14
+const RIDGE14 = [
+  [0, 10],
+  [16, 6],
+  [34, 11],
+  [52, 5],
+  [70, 10],
+  [86, 7],
+  [100, 10],
+];
+
+let chapter14Started = false;
+
+async function runChapter14() {
+  const rover = document.getElementById("rover8"); // the same rover, still alive
+  const land = document.getElementById("land14");
+  const chip = document.getElementById("c14Chip");
+  const text = document.getElementById("c14Text");
+  const hint = document.getElementById("c14Hint");
+  const controls = document.getElementById("c14Controls");
+  const leftBtn = document.getElementById("c14Left");
+  const rightBtn = document.getElementById("c14Right");
+
+  // stop the storm's moving parts; the dense sky (.storm13) stays
+  document.getElementById("storm13").innerHTML = ""; // all the dust pieces
+  document.getElementById("dustFront13").innerHTML = "";
+
+  // the dead rover: dark, grey, no life in it (the 3D model stays as it is)
+  rover.classList.remove("driving", "drained", "glitch");
+  rover.classList.add("broken", "dead");
+  const rw = rover.offsetWidth;
+  const w = app.clientWidth;
+  const cx = w / 2; // the center of the screen
+  rover.style.left = "0";
+  rover.style.bottom = "30%"; // the top line of the new land (same as .land14 height)
+  rover.style.transformOrigin = "50% 100%"; // it tilts around its wheels
+  const depth = (px) =>
+    (ridgeOf(RIDGE14, (px / w) * 100) / 100) * land.offsetHeight;
+  rover.style.transform = `translate(${cx - rw / 2}px, ${
+    depth(cx) + C14.sink
+  }px)`;
+
+  // the arrows: pressing them only makes the dead rover twitch, it never moves
+  let phase = "wait"; // "wait" -> "drive" -> "done"
+  bindDriveControls(leftBtn, rightBtn, () => phase === "drive");
+  function twitch() {
+    if (phase !== "drive") return; // the arrows are not active yet
+    rover.classList.remove("twitch");
+    void rover.offsetWidth; // restart the short CSS animation
+    rover.classList.add("twitch");
+    setTimeout(() => rover.classList.remove("twitch"), 300);
+  }
+  leftBtn.addEventListener("pointerdown", twitch);
+  rightBtn.addEventListener("pointerdown", twitch);
+
+  // keep the chip above the dead rover
+  const rh = rover.offsetHeight;
+  const chipTop =
+    app.clientHeight - (0.3 * app.clientHeight + rh + C14.sink) - 14;
+  chip.style.transform = `translate(${cx}px, ${chipTop}px) translateX(-50%)`;
+
+  // 1. the land rises, then the dead rover appears in the middle of the screen
+  rover.style.opacity = 0;
+  await wait(C14.startDelay);
+  rover.style.opacity = 1;
+  chip.classList.add("show");
+
+  // 2. the arrows and the hint: the user can try, but nothing happens
+  await wait(C14.controlsDelay);
+  phase = "drive";
+  controls.classList.add("show");
+  hint.textContent = C14_HINT;
+  hint.classList.add("show");
+
+  // 3. the sentence and its voice
+  await wait(C14.textDelay);
+  text.textContent = C14_TEXT;
+  text.classList.add("show");
+  await playVoice(C14_VOICE);
+
+  // 4. the voice ended: everything leaves, only the dead rover on the land stays
+  phase = "done";
+  controls.classList.remove("show");
+  hint.classList.remove("show");
+  chip.classList.remove("show");
+  text.classList.remove("show");
+
+  // chapter 15 starts here
+  console.log("chapter 15 starts here");
+}
+
+// chapter 13 continue -> chapter 14
 document.getElementById("continue13").addEventListener("click", () => {
-  console.log("continue 13"); // e.g. app.classList.add("chapter14");
+  if (chapter14Started) return;
+  chapter14Started = true;
+  app.classList.add("chapter14");
+  runChapter14();
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
