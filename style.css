@@ -2197,3 +2197,49 @@ body {
 .c14-chip.show {
   opacity: 1;
 }
+
+/* ---------- chapter 15 ---------- */
+
+/* chapter 14 leaves: the land slides away and the sky fades out,
+   so the star background (.app) shows through again */
+.chapter14.chapter15 #c14Text,
+.chapter14.chapter15 #c14Chip {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.chapter14.chapter15 .land14 {
+  transform: translateY(105%);
+}
+.chapter15 .storm13 {
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+/* the red Mars atmosphere (on since chapter 7) fades out too,
+   and its wind streaks stop drifting */
+.chapter15 .mars-sky {
+  opacity: 0 !important;
+  transition: opacity 1.6s ease;
+}
+.chapter15 .mars-sky .wind span {
+  animation-play-state: paused;
+}
+
+/* the rover: a slow re-centering move, then it floats gently over the stars */
+.chapter15 .rover8 {
+  transition:
+    opacity 0.8s ease,
+    bottom 3s ease,
+    transform 3s ease;
+}
+.rover8.drifting .rover-model {
+  animation: rover-drift 4s ease-in-out infinite;
+}
+@keyframes rover-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}

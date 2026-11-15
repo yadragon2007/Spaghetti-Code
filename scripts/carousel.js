@@ -1881,8 +1881,10 @@ async function runChapter14() {
   chip.classList.remove("show");
   text.classList.remove("show");
 
-  // chapter 15 starts here
-  console.log("chapter 15 starts here");
+  // the voice ended: a short pause, then chapter 15 begins on its own
+  await wait(1200);
+  app.classList.add("chapter15"); // the CSS fades the sky and land away
+  runChapter15();
 }
 
 // chapter 13 continue -> chapter 14
@@ -1891,6 +1893,65 @@ document.getElementById("continue13").addEventListener("click", () => {
   chapter14Started = true;
   app.classList.add("chapter14");
   runChapter14();
+});
+
+/* ---------- chapter 15 ---------- */
+
+const C15 = {
+  startDelay: 2600, // after chapter 14's voice: the sky fades, then the rover re-centers
+  textDelay: 500, // pause after the rover is in the middle, before the sentence
+  spinSpeed: 0.45, // how fast the rover turns over (radians per second)
+};
+
+const C15_TEXT =
+  "Oppy is no longer operational, but its contributions to modern science will carry on, and its story will continue to inspire people across generations.";
+const C15_VOICE = "../voiceover/scenes/scene15.mp4";
+
+let chapter15Done = false;
+
+async function runChapter15() {
+  const rover = document.getElementById("rover8"); // the same rover from the last chapters
+  const model = rover.querySelector(".rover-model");
+  const text = document.getElementById("c15Text");
+
+  // the rover comes back fresh: normal colors, and it turns over slowly
+  rover.classList.remove("dead");
+  disposeViewers("rover"); // free the old side-view model
+  createViewer(model, "../models/opportunity.glb", {
+    rotate: true, // it spins
+    speed: C15.spinSpeed, // how fast (radians per second)
+    azimuth: 90, // side view, like in chapters 8 to 13
+    elevation: 8,
+    headLight: 3,
+    studio: 1.5,
+    fit: true,
+    fitPadding: 1.05,
+    group: "rover",
+  });
+
+  // the rover leaves the land and floats in the middle of the star field
+  const rw = rover.offsetWidth;
+  const cx = app.clientWidth / 2;
+  rover.querySelector(".rover-flip").style.transform = "none";
+  rover.style.bottom = "40%"; // the middle of the screen
+  rover.style.transform = `translate(${cx - rw / 2}px, 0)`;
+  rover.classList.add("drifting"); // the slow up-down float
+
+  // 1. the sentence and its voice
+  await wait(C15.startDelay + C15.textDelay);
+  text.textContent = C15_TEXT;
+  text.classList.add("show");
+  await playVoice(C15_VOICE);
+
+  // 2. the voice ended: the continue button appears
+  if (!chapter15Done) {
+    chapter15Done = true;
+    document.getElementById("continue15").classList.add("ready");
+  }
+}
+
+document.getElementById("continue15").addEventListener("click", () => {
+  console.log("continue 15");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
