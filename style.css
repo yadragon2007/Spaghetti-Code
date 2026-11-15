@@ -2243,3 +2243,76 @@ body {
     transform: translateY(-6px);
   }
 }
+
+/* ---------- chapter 16 ---------- */
+
+/* chapter 15 content leaves */
+.chapter15.chapter16 #c15Text {
+  opacity: 0;
+}
+.chapter15.chapter16 #continue15 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* the rover moves to the top of the page and scales down a bit,
+   as if it is moving up into the sky (it keeps spinning: the 3D model) */
+.chapter16 .rover8 {
+  transition:
+    opacity 0.8s ease,
+    bottom 3s ease,
+    transform 3s ease;
+}
+
+/* the title under the rover */
+.c16-title {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  transform: translateX(-50%);
+  width: 90%;
+  padding: 0 8% 16px;
+  text-align: center;
+  font-family: "Anton SC", sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+  color: #f4d9b8;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+.c16-title.show {
+  opacity: 1;
+}
+
+/* the achievements grid: 2 columns (JS fades the cards in one by one) */
+.c16-grid {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 90%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.c16-card {
+  padding: 12px 8px;
+  border: 1px solid rgba(244, 217, 184, 0.35);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #f4d9b8;
+  font-family: "Patrick Hand", cursive;
+  font-size: 15px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.c16-card.show {
+  opacity: 1;
+  transform: none;
+}

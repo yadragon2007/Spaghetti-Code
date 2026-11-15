@@ -1950,8 +1950,82 @@ async function runChapter15() {
   }
 }
 
+/* ---------- chapter 16 ---------- */
+
+const C16 = {
+  startDelay: 400, // after clicking continue: the rover starts moving up
+  titleDelay: 1200, // pause after the rover starts moving, before the title and its voice
+  cardDelay: 400, // pause after one voice, before the next card appears
+};
+
+// the title and the four achievements; the voice files live in
+// voiceover/atchivements/ (the file names have spaces in them, so encode them)
+const C16_V = "../voiceover/atchivements/";
+const C16_TITLE = "Opportunity By The Number";
+const C16_TITLE_VOICE = C16_V + "Opportunity By The Number.mp4";
+const C16_CARDS = [
+  {
+    id: "c16Card1",
+    voice: C16_V + "years.mp4",
+  },
+  {
+    id: "c16Card2",
+    voice: C16_V + "images count.mp4",
+  },
+  {
+    id: "c16Card3",
+    voice: C16_V + "distance.mp4",
+  },
+  {
+    id: "c16Card4",
+    voice: C16_V + "degrees.mp4",
+  },
+];
+
+let chapter16Started = false;
+
+async function runChapter16() {
+  const rover = document.getElementById("rover8"); // the spinning rover from chapter 15
+  const title = document.getElementById("c16Title");
+
+  // 1. the rover moves to the top of the page (it keeps spinning: the 3D model).
+  //    it still moves with "bottom", so the transition stays smooth
+  const rw = rover.offsetWidth;
+  const rh = rover.offsetHeight;
+  const cx = app.clientWidth / 2;
+  const topGap = 0.06 * app.clientHeight; // 6% down from the top edge
+  rover.style.bottom = `calc(100% - ${topGap + rh}px)`;
+  rover.style.transform = `translate(${cx - rw / 2}px, 0) scale(0.8)`;
+
+  // 2. the title under the rover and its voice
+  await wait(C16.startDelay + C16.titleDelay);
+  title.classList.add("show");
+  await playVoice(C16_TITLE_VOICE);
+  title.classList.remove("show");
+
+  // 3. the achievements, one by one: a card appears, its voice plays,
+  //    and the next card appears only when the voice ends
+  for (const card of C16_CARDS) {
+    const el = document.getElementById(card.id);
+    el.classList.add("show");
+    await playVoice(card.voice);
+    await wait(C16.cardDelay);
+  }
+
+  // 4. the last voice ended: the continue button appears
+  document.getElementById("continue16").classList.add("ready");
+}
+
+// chapter 15 continue -> chapter 16
 document.getElementById("continue15").addEventListener("click", () => {
-  console.log("continue 15");
+  if (chapter16Started) return;
+  chapter16Started = true;
+  app.classList.add("chapter16");
+  runChapter16();
+});
+
+document.getElementById("continue16").addEventListener("click", () => {
+  console.log("continue 16"); // e.g. app.classList.add("chapter17");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
