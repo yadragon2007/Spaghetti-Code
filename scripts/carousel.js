@@ -1352,8 +1352,217 @@ document.getElementById("continue10").addEventListener("click", () => {
   runChapter11();
 });
 
+/* ---------- chapter 12 ---------- */
+
+const C12 = {
+  fadeOut: 800, // after clicking continue: wait for chapter 11 to leave
+  startDelay: 1200, // after the land rises: the rover fades in
+  startX: 24, // where the rover appears (px from the left edge)
+  speed: 150, // driving speed while an arrow is held (px per second)
+  sink: 16, // lowers the rover onto the ground (px)
+  glitchMin: 3,
+  glitchMax: 7, // pause between two memory glitches (seconds)
+  glitchTimeMin: 0.4,
+  glitchTimeMax: 0.9, // how long one glitch lasts (seconds)
+  textDelay: 600, // pause after the bubble appears, before the first sentence
+  controlsDelay: 400, // pause after the voices end, before the arrows appear
+  facesRight: true, // same setting as chapters 8 to 11
+};
+
+const C12_BUBBLE = "what must I do?!";
+const C12_HINTS = {
+  drive: "Memory problems make Oppy freeze sometimes. Drive to the right",
+  blocked: "The way is blocked on this side. Drive to the right!",
+};
+const C12_LINES = [
+  {
+    text: "Oppy recovered, but more problems arose.",
+    voice: "../voiceover/scenes/scene12_1.mp4",
+  },
+  {
+    text: "The rover started developing flash memory problems between 2014 and 2015. It lost steering in one its other front wheel in 2017.",
+    voice: "../voiceover/scenes/scene12_2.mp4",
+  },
+];
+
+// the top edge of the land: the same numbers as the clip-path in .land12 [x %, y % of the land height]
+const RIDGE12 = [
+  [0, 9],
+  [15, 4],
+  [33, 10],
+  [50, 5],
+  [68, 11],
+  [85, 6],
+  [100, 10],
+];
+
+let chapter12Started = false;
+
+async function runChapter12() {
+  const rover = document.getElementById("rover8"); // the same rover as before
+  const flip = rover.querySelector(".rover-flip");
+  const land = document.getElementById("land12");
+  const bubble = document.getElementById("c12Bubble");
+  const text = document.getElementById("c12Text");
+  const hint = document.getElementById("c12Hint");
+  const controls = document.getElementById("c12Controls");
+  const leftBtn = document.getElementById("c12Left");
+  const rightBtn = document.getElementById("c12Right");
+
+  // chapter 11's rover leaves first, then it is set up on the new ground
+  rover.classList.remove("driving", "drained", "celebrate", "glitch");
+  rover.style.opacity = 0;
+  await wait(C12.fadeOut);
+
+  // chapter 11 freed the rover model, so load it again
+  createViewer(
+    rover.querySelector(".rover-model"),
+    "../models/opportunity.glb",
+    {
+      azimuth: 90, // side view; try -90 if it looks backwards
+      elevation: 8,
+      headLight: 3,
+      studio: 1.5,
+      fit: true,
+      fitPadding: 1.05,
+      group: "rover",
+    },
+  );
+
+  const rw = rover.offsetWidth;
+  const rh = rover.offsetHeight;
+  let x = C12.startX;
+  let dir = 1; // last direction: 1 = right, -1 = left
+  let phase = "wait"; // "wait" -> "drive" -> "done"
+  let hintKind = null;
+  let glitch = 0; // time left in the current memory glitch (seconds)
+  let nextGlitch = rand(C12.glitchMin, C12.glitchMax); // time left before the next glitch
+
+  const canDrive = () => phase === "drive";
+  const input = bindDriveControls(leftBtn, rightBtn, canDrive);
+
+  rover.style.bottom = "30%"; // the top line of the new land (same as .land12 height)
+  rover.style.transformOrigin = "50% 100%"; // it tilts around its wheels
+  flip.style.transform = "none";
+
+  function setHint(kind) {
+    if (hintKind === kind) return;
+    hintKind = kind;
+    hint.classList.remove("show");
+    setTimeout(() => {
+      if (hintKind !== kind) return; // a newer message replaced this one
+      hint.textContent = C12_HINTS[kind];
+      hint.classList.add("show");
+    }, 350);
+  }
+  function hideHint() {
+    hintKind = null;
+    hint.classList.remove("show");
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const w = app.clientWidth;
+
+    // it drives well, but a memory glitch stops it for a moment
+    let moving = false;
+    if (canDrive() && input.hold !== 0) {
+      dir = input.hold;
+      if (glitch > 0) {
+        glitch -= dt; // frozen: it doesn't move
+      } else {
+        moving = true;
+        x += input.hold * C12.speed * dt;
+        if (x < 0) x = 0; // the left side is blocked
+        nextGlitch -= dt;
+        if (nextGlitch <= 0) {
+          glitch = rand(C12.glitchTimeMin, C12.glitchTimeMax);
+          nextGlitch = rand(C12.glitchMin, C12.glitchMax);
+        }
+      }
+    } else if (glitch > 0) {
+      glitch = 0; // no glitch while not driving
+    }
+
+    // follow the ridge of the land and tilt with its slope
+    const cx = x + rw / 2;
+    const depth = (px) =>
+      (ridgeOf(RIDGE12, (px / w) * 100) / 100) * land.offsetHeight;
+    const ty = depth(cx) + C12.sink;
+    const ang =
+      (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
+    flip.style.transform = dir < 0 === C12.facesRight ? "scaleX(-1)" : "none";
+    rover.classList.toggle("driving", moving);
+    rover.classList.toggle("glitch", glitch > 0);
+
+    // the speech bubble stays above the rover
+    const bh = bubble.offsetHeight;
+    const bubbleTop =
+      app.clientHeight - (0.3 * app.clientHeight + rh - ty) - bh - 10;
+    bubble.style.transform = `translate(${x + rw / 2}px, ${bubbleTop}px) translateX(-50%)`;
+
+    if (canDrive()) {
+      const atWall = x <= 0.5;
+      leftBtn.classList.toggle("blocked", atWall);
+      if (atWall && input.hold === -1) setHint("blocked");
+      else if (x > 30) setHint("drive");
+    }
+
+    // the rover left the screen on the right
+    if (phase === "drive" && x >= w) {
+      phase = "done";
+      input.hold = 0;
+      rover.style.opacity = 0;
+      bubble.classList.remove("show");
+      controls.classList.remove("show");
+      hint.classList.remove("show");
+      rover.classList.remove("driving", "glitch");
+      disposeViewers("rover"); // it is off screen: free its 3D model
+      document.getElementById("continue12").classList.add("ready");
+      return; // stop the loop
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // 1. the land rises, then the rover fades in
+  rover.style.opacity = 1;
+  await wait(C12.startDelay);
+
+  // 2. the speech bubble above the rover
+  bubble.textContent = C12_BUBBLE;
+  bubble.classList.add("show");
+
+  // 3. the sentences and their voices (the bubble stays)
+  await wait(C12.textDelay);
+  for (const line of C12_LINES) {
+    text.textContent = line.text;
+    text.classList.add("show");
+    await playVoice(line.voice);
+    text.classList.remove("show");
+    await wait(600); // let it fade out
+  }
+
+  // 4. arrows and guide message; the user drives (the loop above handles the ending)
+  await wait(C12.controlsDelay);
+  phase = "drive";
+  controls.classList.add("show");
+  setHint("drive");
+}
+
+// chapter 11 continue -> chapter 12
 document.getElementById("continue11").addEventListener("click", () => {
-  console.log("continue 11"); // e.g. app.classList.add("chapter12");
+  if (chapter12Started) return;
+  chapter12Started = true;
+  app.classList.add("chapter12");
+  runChapter12();
+});
+
+document.getElementById("continue12").addEventListener("click", () => {
+  console.log("continue 12"); // e.g. app.classList.add("chapter13");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */

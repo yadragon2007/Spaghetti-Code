@@ -1753,6 +1753,123 @@ body {
   }
 }
 
+/* ---------- chapter 12 ---------- */
+
+/* chapter 11 content leaves, the old land slides away with its rocks */
+.chapter11.chapter12 #c11Text {
+  opacity: 0;
+}
+.chapter11.chapter12 #c11Hint,
+.chapter11.chapter12 #c11Controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter11.chapter12 #continue11 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter11.chapter12 .confetti span {
+  display: none;
+}
+.chapter11.chapter12 .land11 {
+  transform: translateY(105%);
+}
+
+/* the new land: another shape (it sits under the rover) */
+.land12 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%; /* the rover's bottom is set to the same 30% in JS */
+  z-index: 0;
+  pointer-events: none;
+  transform: translateY(105%);
+  transition: transform 1s ease 0.3s;
+}
+.land12::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #9c4d28 0%, #642c14 55%, #2f1308 100%);
+  clip-path: polygon(
+    0 9%,
+    15% 4%,
+    33% 10%,
+    50% 5%,
+    68% 11%,
+    85% 6%,
+    100% 10%,
+    100% 100%,
+    0 100%
+  );
+}
+.chapter12 .land12 {
+  transform: none;
+}
+
+/* the speech bubble above the rover (JS moves it) */
+.c12-bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.c12-bubble.show {
+  opacity: 1;
+}
+.c12-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  background: inherit;
+  border-right: 1px solid rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  transform: rotate(45deg);
+}
+
+/* the rover fades in on this land */
+.chapter12 .rover8 {
+  transition: opacity 0.8s ease;
+}
+
+/* a memory glitch: the rover freezes and flickers for a moment */
+.rover8.glitch .rover-model {
+  animation: rover-glitch 0.12s linear infinite;
+  opacity: 0.6;
+}
+@keyframes rover-glitch {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-1px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, 0);
+  }
+}
+
 /* confetti (JS creates the pieces) */
 .confetti {
   position: absolute;
