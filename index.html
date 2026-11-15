@@ -129,10 +129,10 @@
 
       <section id="chapter5" class="chapter5-scene">
         <div id="c5Stage" class="c5-stage"></div>
-          <p id="c5Text" class="c5-text">
-            Help the engineers put Opportunity into the Delta II rocket.
-          </p>
-          <p id="c5Hint" class="c5-hint"></p>
+        <p id="c5Text" class="c5-text">
+          Help the engineers put Opportunity into the Delta II rocket.
+        </p>
+        <p id="c5Hint" class="c5-hint"></p>
         <button id="continue5" class="btn c5-btn uppercase">continue</button>
       </section>
 
@@ -141,6 +141,34 @@
         <p id="c6Text" class="c6-text"></p>
         <button id="launch6" class="btn c6-btn uppercase">launch</button>
         <button id="continue6" class="btn c6-btn uppercase">continue</button>
+      </section>
+
+      <!-- chapter 7: Mars atmosphere backdrop (fades in at scene 2 and stays) -->
+      <div class="mars-sky"><div id="wind" class="wind"></div></div>
+
+      <!-- chapter 7 -->
+      <section id="chapter7" class="chapter7-scene">
+        <!-- scene 1: stage-capsule flies to Mars -->
+        <div class="c7-scene s1">
+          <div class="s1-focus">
+            <div id="s1Mars" class="s1-mars"></div>
+            <div id="s1Capsule" class="s1-capsule"></div>
+          </div>
+        </div>
+
+        <!-- scene 2: falling through the atmosphere -->
+        <div class="c7-scene s2">
+          <div id="s2Capsule" class="s2-capsule"></div>
+        </div>
+
+        <!-- scene 3: the airbag bounces on the land -->
+        <div class="c7-scene s3">
+          <div class="s3-land"></div>
+          <div id="s3Airbag" class="s3-airbag"></div>
+        </div>
+
+        <p id="c7Text" class="c7-text"></p>
+        <button id="continue7" class="btn c7-btn uppercase">continue</button>
       </section>
     </main>
 

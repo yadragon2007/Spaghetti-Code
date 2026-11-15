@@ -298,9 +298,153 @@ document.getElementById("launch6").addEventListener("click", async () => {
   document.getElementById("continue6").classList.add("ready");
 });
 
+/* ---------- chapter 7 ---------- */
+
+// every delay you may want to change is here (milliseconds)
+const C7 = {
+  startDelay: 900, // after clicking continue: wait for chapter 6 to fade out
+  s1Flight: 10000, // scene 1: how long the capsule flies to Mars (match it to voice 1)
+  s1TextDelay: 3000, // scene 1: delay before the sentence and voice 1 start
+  s2TextDelay: 1500, // scene 2: delay before the sentence and voice 2 start
+  s3TextDelay: 2200, // scene 3: delay before the sentence and voice 3 start
+  bounceDelay: 1200, // scene 3: time after the land appears until the airbag drops
+  bounceTime: 3600, // scene 3: how long the fall and bounces last
+};
+
+const C7_LINES = [
+  {
+    text: "After six and a half months in space,",
+    voice: "../voiceover/scenes/scene7_1.mp3",
+  },
+  {
+    text: "Oppy landed in Meridiani Planum on January 24th, 2004.",
+    voice: "../voiceover/scenes/scene7_2.mp3",
+  },
+  {
+    text: "Its airbag-protected lander bounced at least 26 times before settling inside the Eagle Crater.",
+    voice: "../voiceover/scenes/scene7_3.mp3",
+  },
+];
+
+let chapter7Started = false;
+
+/* wind streaks: they travel from the bottom right to the top left */
+function buildWind(count = 46) {
+  const wind = document.getElementById("wind");
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement("span");
+    const dur = 0.9 + Math.random() * 1.6; // seconds
+    s.style.cssText = `
+      left: ${Math.random() * 130 - 10}%;
+      top: ${Math.random() * 130 - 10}%;
+      width: ${60 + Math.random() * 160}px;
+      --o: ${0.15 + Math.random() * 0.4};
+      animation-duration: ${dur}s;
+      animation-delay: -${Math.random() * dur}s;`; // negative delay: already in flight at the start
+    wind.appendChild(s);
+  }
+}
+
+async function runChapter7() {
+  const ch = document.getElementById("chapter7");
+  const text = document.getElementById("c7Text");
+
+  // send the timing settings to the CSS
+  ch.style.setProperty("--s1-flight", C7.s1Flight + "ms");
+  ch.style.setProperty("--bounce-time", C7.bounceTime + "ms");
+  ch.style.setProperty("--bounce-delay", C7.bounceDelay + "ms");
+
+  buildWind();
+
+  // load the four models now so nothing pops in later
+  createViewer(document.getElementById("s1Mars"), "../models/Mars.glb", {
+    rotate: true,
+    speed: 0.25,
+    elevation: 10,
+    azimuth: 0,
+    headLight: 2,
+    studio: 0.5,
+    fit: true,
+    fitPadding: 1.05,
+  });
+  createViewer(
+    document.getElementById("s1Capsule"),
+    "../models/stage-capsule.glb",
+    {
+      elevation: 5,
+      azimuth: 0,
+      tilt: [0, 0, 45], // points the nose up-left, toward Mars
+      headLight: 3,
+      studio: 1.5,
+      fit: true,
+      fitPadding: 1.6,
+    },
+  );
+  createViewer(document.getElementById("s2Capsule"), "../models/capsule.glb", {
+    elevation: 10,
+    azimuth: 0,
+    headLight: 3,
+    studio: 1.5,
+    fit: true,
+    fitPadding: 1.05,
+  });
+  createViewer(document.getElementById("s3Airbag"), "../models/airbag.glb", {
+    elevation: 15,
+    azimuth: 0,
+    headLight: 3,
+    studio: 1.5,
+    fit: true,
+    fitPadding: 1.05,
+  });
+
+  function setScene(n) {
+    ch.dataset.scene = n; // shows this scene, hides the others
+    ch.classList.add("go" + n); // starts this scene's motion (never removed)
+  }
+
+  // shows a sentence after `delay`, plays its voice, and resolves when the voice ends
+  async function say(i, delay, keep = false) {
+    await wait(delay);
+    text.textContent = C7_LINES[i].text;
+    text.classList.add("show");
+    await playVoice(C7_LINES[i].voice);
+    if (!keep) text.classList.remove("show");
+  }
+
+  await wait(C7.startDelay);
+
+  // scene 1: flying to Mars
+  setScene(1);
+  await say(0, C7.s1TextDelay);
+
+  // scene 2: red atmosphere, falling capsule
+  app.classList.add("sky-on"); // the sky and wind stay until the end
+  setScene(2);
+  await say(1, C7.s2TextDelay);
+
+  // scene 3: land + bouncing airbag
+  setScene(3);
+  await say(2, C7.s3TextDelay, true); // the last sentence stays on screen
+
+  document.getElementById("continue7").classList.add("ready");
+}
+
+// chapter 6 continue -> chapter 7
 document.getElementById("continue6").addEventListener("click", () => {
-  console.log("continue 6"); // e.g. app.classList.add("chapter7");
+  if (chapter7Started) return;
+  chapter7Started = true;
+  app.classList.add("chapter7");
+  runChapter7();
 });
+
+document.getElementById("continue7").addEventListener("click", () => {
+  console.log("continue 7"); // e.g. app.classList.add("chapter8");
+});
+
+
+
+
+
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {

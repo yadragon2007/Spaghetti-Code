@@ -893,3 +893,223 @@ body {
   pointer-events: auto;
   transition: opacity 0.6s ease;
 }
+
+
+
+/* ---------- chapter 7 ---------- */
+
+/* chapter 6 content leaves */
+.chapter6.chapter7 .c5-stage,
+.chapter6.chapter7 .launch-bg {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.chapter6.chapter7 .chapter6-scene {
+  opacity: 0;
+  visibility: hidden;      /* also blocks the hidden buttons from being clicked */
+  transition: opacity 0.5s ease, visibility 0s 0.5s;
+}
+
+.chapter7-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* every scene fades in and out by itself */
+.c7-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease, visibility 0s 0.8s;
+}
+#chapter7[data-scene="1"] .s1,
+#chapter7[data-scene="2"] .s2,
+#chapter7[data-scene="3"] .s3 {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.8s ease;
+}
+
+/* canvases fill their boxes */
+.s1-mars canvas,
+.s1-capsule canvas,
+.s2-capsule canvas,
+.s3-airbag canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* ----- scene 1: flying to a small Mars ----- */
+.s1-focus {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 0;
+  height: 0;
+}
+.s1-mars {
+  position: absolute;
+  left: -75px;
+  top: -75px;
+  width: 150px;             /* Mars size */
+  height: 150px;
+}
+.s1-capsule {
+  position: absolute;
+  left: -130px;
+  top: -130px;
+  width: 260px;             /* starting size, close to the viewer */
+  height: 260px;
+  opacity: 0;
+  transform: translate(170px, 260px) scale(1);
+}
+.go1 .s1-capsule {
+  animation: s1-fly var(--s1-flight, 10000ms) cubic-bezier(0.25, 0.6, 0.35, 1) forwards;
+}
+/* starts large at the side, shrinks as it gets farther, disappears into Mars */
+@keyframes s1-fly {
+  0%   { transform: translate(170px, 260px) scale(1);  opacity: 1; }
+  92%  { transform: translate(8px, 6px) scale(0.09);   opacity: 1; }
+  100% { transform: translate(0, 0) scale(0.07);       opacity: 0; }
+}
+
+/* ----- red atmosphere (scene 2 and 3) ----- */
+.mars-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #2a0d08 0%, #7a2410 35%, #c2501f 70%, #e8894a 100%);
+}
+.sky-on .mars-sky {
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+
+/* wind streaks move from the bottom right to the top left (JS creates them) */
+.wind {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.wind span {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255, 235, 210, 0.9), rgba(255, 235, 210, 0));
+  transform: rotate(45deg);
+  opacity: 0;
+  animation: wind-blow linear infinite;
+}
+@keyframes wind-blow {
+  0%   { transform: rotate(45deg) translateX(0);       opacity: 0; }
+  15%  { opacity: var(--o); }
+  85%  { opacity: var(--o); }
+  100% { transform: rotate(45deg) translateX(-900px);  opacity: 0; }
+}
+
+/* ----- scene 2: the capsule falls, swaying left and right ----- */
+.s2-capsule {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: 230px;
+  height: 230px;
+  margin-left: -115px;
+  filter: drop-shadow(0 0 24px rgba(255, 150, 60, 0.75));   /* heat glow */
+}
+.go2 .s2-capsule {
+  animation: sway 3.4s ease-in-out infinite;
+}
+@keyframes sway {
+  0%, 100% { transform: translateX(-30px) rotate(-14deg); }
+  50%      { transform: translateX(30px) rotate(14deg); }
+}
+
+/* ----- scene 3: land + bouncing airbag ----- */
+.s3-land {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 33%;
+  transform: translateY(105%);
+  transition: transform 1s ease;
+  background:
+    radial-gradient(circle at 15% 40%, rgba(0, 0, 0, 0.25) 0 6px, transparent 7px),
+    radial-gradient(circle at 62% 55%, rgba(0, 0, 0, 0.2) 0 9px, transparent 10px),
+    radial-gradient(circle at 85% 35%, rgba(255, 255, 255, 0.08) 0 5px, transparent 6px),
+    linear-gradient(to bottom, #a8481f 0%, #6b2a12 60%, #3d170a 100%);
+  clip-path: polygon(0 14%, 12% 6%, 28% 12%, 45% 3%, 63% 10%, 80% 5%, 100% 12%, 100% 100%, 0 100%);
+}
+.go3 .s3-land {
+  transform: none;
+}
+
+.s3-airbag {
+  position: absolute;
+  left: 50%;
+  bottom: calc(30% - 24px);    /* tweak so the airbag rests on the land */
+  width: 190px;
+  height: 190px;
+  margin-left: -95px;
+  transform: translate(-70px, -100vh);
+}
+.go3 .s3-airbag {
+  animation: airbag-bounce var(--bounce-time, 3600ms) linear var(--bounce-delay, 1200ms) both;
+}
+/* falls, then bounces 3 times, each lower than the last, then rests */
+@keyframes airbag-bounce {
+  0%   { transform: translate(-70px, -100vh) rotate(0deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+  28%  { transform: translate(-30px, 0) rotate(120deg);     animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  42%  { transform: translate(0, -200px) rotate(250deg);    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+  56%  { transform: translate(25px, 0) rotate(360deg);      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  66%  { transform: translate(40px, -80px) rotate(430deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+  76%  { transform: translate(50px, 0) rotate(490deg);      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  83%  { transform: translate(54px, -26px) rotate(520deg);  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+  90%  { transform: translate(58px, 0) rotate(540deg);      animation-timing-function: ease-out; }
+  100% { transform: translate(60px, 0) rotate(550deg); }
+}
+
+/* ----- sentence + button ----- */
+.c7-text {
+  position: absolute;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Anton SC", sans-serif;
+  font-size: clamp(20px, 6vw, 28px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.c7-text.show {
+  opacity: 1;
+}
+.c7-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  pointer-events: none;
+}
+.c7-btn.ready {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease;
+}
