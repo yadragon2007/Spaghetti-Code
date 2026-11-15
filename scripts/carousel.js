@@ -2024,9 +2024,50 @@ document.getElementById("continue15").addEventListener("click", () => {
   runChapter16();
 });
 
+/* ---------- chapter 17: the end ---------- */
+
+const C17 = {
+  startDelay: 400, // after clicking continue: the rover starts moving back to the middle
+  endDelay: 1200, // pause after the rover starts moving, before "The End" and its voice
+  buttonDelay: 600, // pause after the voice, before the home button appears
+};
+
+const C17_VOICE = "../voiceover/scenes/scene17.mp4";
+
+let chapter17Started = false;
+
+async function runChapter17() {
+  const rover = document.getElementById("rover8"); // the spinning rover from chapter 16
+  const end = document.getElementById("c17End");
+
+  // 1. the rover moves back to the middle of the page, full size (still spinning)
+  const rw = rover.offsetWidth;
+  const cx = app.clientWidth / 2;
+  rover.style.bottom = "40%";
+  rover.style.transform = `translate(${cx - rw / 2}px, 0)`;
+
+  // 2. "The End" appears at the top and its voice plays
+  await wait(C17.startDelay + C17.endDelay);
+  end.classList.add("show");
+  await playVoice(C17_VOICE);
+
+  // 3. the voice ended: the home button appears under the rover
+  await wait(C17.buttonDelay);
+  document.getElementById("home17").classList.add("ready");
+}
+
+// chapter 16 continue -> chapter 17
 document.getElementById("continue16").addEventListener("click", () => {
-  console.log("continue 16"); // e.g. app.classList.add("chapter17");
+  if (chapter17Started) return;
+  chapter17Started = true;
+  app.classList.add("chapter17");
+  runChapter17();
 });
+
+// home: reload the page, so the whole app is back at the start screen
+document.getElementById("home17").addEventListener("click", () =>
+  location.reload(),
+);
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
 function clearRoverClasses() {

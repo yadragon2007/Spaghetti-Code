@@ -2277,7 +2277,7 @@ body {
   font-family: "Anton SC", sans-serif;
   font-size: 30px;
   letter-spacing: 1px;
-  color: #f4d9b8;
+  color: #ffffff;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
   opacity: 0;
   pointer-events: none;
@@ -2304,7 +2304,7 @@ body {
   border: 1px solid rgba(244, 217, 184, 0.35);
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.45);
-  color: #f4d9b8;
+  color: #ffffff;
   font-family: "Patrick Hand", cursive;
   font-size: 15px;
   text-align: center;
@@ -2315,4 +2315,56 @@ body {
 .c16-card.show {
   opacity: 1;
   transform: none;
+}
+
+/* ---------- chapter 17 ---------- */
+
+/* chapter 16 content leaves: the title, the four cards and the button */
+.chapter16.chapter17 #c16Title {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.chapter16.chapter17 .c16-card {
+  opacity: 0;
+  transform: none;
+  transition: opacity 0.5s ease;
+}
+.chapter16.chapter17 #continue16 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* the rover moves back to the middle of the page, full size again
+   (the 3D model keeps spinning) */
+.chapter17 .rover8 {
+  transition:
+    opacity 0.8s ease,
+    bottom 3s ease,
+    transform 3s ease;
+}
+
+/* "The End" at the top of the page */
+.c17-end {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  font-family: "Anton SC", sans-serif;
+  font-size: 44px;
+  letter-spacing: 4px;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+.c17-end.show {
+  opacity: 1;
+}
+
+/* the home button sits under the rover, not at the bottom edge */
+.c8-btn#home17 {
+  bottom: auto;
+  top: 60%;
 }
