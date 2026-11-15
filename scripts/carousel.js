@@ -378,7 +378,10 @@ async function runChapter7() {
     headLight: 2,
     studio: 0.5,
     fit: true,
-    fitPadding: 1.05,
+    // bigger than the usual 1.05: the "fit" math treats the model as flat,
+    // but a sphere bulges toward the camera and would get cropped at the top
+    // and bottom edges
+    fitPadding: 1.2,
     group: "s1",
   });
   createViewer(
