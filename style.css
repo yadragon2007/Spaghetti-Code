@@ -425,8 +425,6 @@ body {
 .chapter-map {
   width: 100%;
   max-width: 360px;
-  border-radius: 12px;
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
   opacity: 0;
 }
 .chapter-text {
@@ -720,34 +718,61 @@ body {
   opacity: 0 !important;
 }
 
-/* text + instruction stacked above the continue button */
-.c5-caption {
+/* ---------- chapter 6 ---------- */
+
+.launch-bg {
   position: absolute;
-  bottom: 130px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  inset: -25% 0 25% 0; /* same size, moved up by 20% of the screen */
+  z-index: 0;
+  opacity: 0;
   pointer-events: none;
+  background-color: #000;
+  background-image: url("/images/Launch.jpg");
+  background-size: cover;
+  background-position: center;
+  /* the bottom dissolves into the star background */
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
 }
 
-.c5-hint {
-  margin: 0;
-  padding: 6px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  color: white;
-  font-size: 14px;
-  letter-spacing: 1px;
-  text-align: center;
+/* blueprint fades out, then the launch photo fades in */
+.chapter6 .blueprint-bg {
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 1s ease;
 }
-.c5-hint.show {
+.chapter6 .launch-bg {
   opacity: 1;
+  transition: opacity 1s ease 0.8s;
+}
+
+/* screen shake while the rocket launches */
+.launching .c5-stage,
+.launching .launch-bg {
+  animation: rumble 0.09s linear infinite;
+}
+@keyframes rumble {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, -2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* the button hides while the rocket is flying, then comes back */
+.launching .c5-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 /* button hidden until the voiceover ends */
@@ -780,4 +805,91 @@ body {
   50% {
     opacity: 0.4;
   }
+}
+
+/* text + instruction stacked above the continue button */
+.c5-caption {
+  position: absolute;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.c5-hint {
+  margin: 0;
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.c5-hint.show {
+  opacity: 1;
+}
+
+/* ---------- chapter 6 ---------- */
+
+/* chapter 5 text and button leave (the stage with the rocket stays) */
+.chapter5.chapter6 .c5-caption,
+.chapter5.chapter6 .c5-text,
+.chapter5.chapter6 .c5-hint {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.chapter5.chapter6 .c5-btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.chapter6-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.c6-text {
+  position: absolute;
+  bottom: 130px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  text-align: center;
+  color: white;
+  font-family: "Anton SC", sans-serif;
+  font-size: clamp(20px, 6vw, 28px);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.c6-text.show {
+  opacity: 1;
+}
+
+/* launch and continue sit in the same spot; only one is shown at a time */
+.c6-btn {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  pointer-events: none;
+}
+.c6-btn.ready {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.6s ease;
 }

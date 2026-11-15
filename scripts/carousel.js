@@ -193,6 +193,7 @@ function showHint(text) {
 }
 
 let chapter5Started = false;
+let rocketPuzzle = null;
 
 document.getElementById("continue4").addEventListener("click", () => {
   if (chapter5Started) return;
@@ -230,7 +231,7 @@ document.getElementById("continue4").addEventListener("click", () => {
         );
       }, 350);
     },
-  });
+  }).then((puzzle) => (rocketPuzzle = puzzle));
 
   app.classList.add("chapter5");
 
@@ -244,9 +245,61 @@ document.getElementById("continue4").addEventListener("click", () => {
   }, 1800);
 });
 
+/* ---------- chapter 6 ---------- */
+const C6_LINES = [
+  {
+    text: "Opportunity was launched aboard a Delta II rocket on July 7th, 2003, headed for Mars.",
+    voice: "../voiceover/scenes/scene6_1.mp4",
+  },
+  {
+    text: "Nearly a month earlier, its twin, Spirit, went on the same journey.",
+    voice: "../voiceover/scenes/scene6_2.mp4",
+  },
+];
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let chapter6Started = false;
+let launching = false;
+
+async function runChapter6() {
+  const text = document.getElementById("c6Text");
+
+  await wait(1800); // let the launch photo fade in first
+
+  for (const line of C6_LINES) {
+    text.textContent = line.text;
+    text.classList.add("show");
+    await playVoice(line.voice); // the next line starts when this voice ends
+    text.classList.remove("show");
+    await wait(600); // let it fade out
+  }
+
+  document.getElementById("launch6").classList.add("ready");
+}
+
+// chapter 5 continue -> chapter 6 starts
 document.getElementById("continue5").addEventListener("click", () => {
-  console.log("continue 5");
-  // e.g. app.classList.add("chapter6");
+  if (chapter6Started) return;
+  chapter6Started = true;
+  app.classList.add("chapter6");
+  runChapter6();
+});
+
+// launch: the rocket flies, then continue appears
+document.getElementById("launch6").addEventListener("click", async () => {
+  if (launching) return;
+  launching = true;
+  document.getElementById("launch6").classList.remove("ready");
+
+  app.classList.add("launching"); // screen shake
+  await rocketPuzzle.launch(); // rumble sound; resolves when the rocket is off screen
+  app.classList.remove("launching");
+
+  document.getElementById("continue6").classList.add("ready");
+});
+
+document.getElementById("continue6").addEventListener("click", () => {
+  console.log("continue 6"); // e.g. app.classList.add("chapter7");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */
