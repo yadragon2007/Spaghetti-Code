@@ -517,6 +517,7 @@ async function runChapter8() {
     studio: 1.5,
     fit: true,
     fitPadding: 1.05,
+    group: "rover", // <- add
   });
 
   const rw = rover.offsetWidth;
@@ -860,8 +861,499 @@ document.getElementById("continue8").addEventListener("click", () => {
   runChapter9();
 });
 
+/* ---------- chapter 10 ---------- */
+
+const C10 = {
+  startDelay: 1400, // after clicking continue: the storm fades in, then the rover appears
+  rightMargin: 24, // where the rover appears (px from the right edge)
+  controlsDelay: 500, // pause after the rover appears, before the arrows appear
+  textDelay: 400, // pause after the arrows appear, before the sentence and voice start
+  speed: 60, // top speed with full energy (px per second)
+  goMin: 0.4,
+  goMax: 0.9, // how long it runs before it stalls (seconds)
+  stallMin: 0.4,
+  stallMax: 1.1, // how long it stalls (seconds)
+  lean: 6, // limp angle while moving (degrees)
+  sink: 16, // lowers the rover onto the ground (px)
+  drain: 0.22, // energy lost per second while moving (1 = full)
+  recharge: 0.12, // energy regained per second while resting
+  streaks: 46, // dust streaks behind the rover
+  clouds: 7, // dust clouds behind the rover
+  frontStreaks: 18, // dust streaks in front of the rover
+  frontClouds: 4, // dust clouds in front of the rover
+  facesRight: true, // same setting as chapters 8, 9 and 11
+};
+
+const C10_TEXT =
+  "In 2007, a severe dust storm sharply reduced the solar power available. Work was suspended for several weeks.";
+const C10_VOICE = "../voiceover/scenes/scene10.mp4";
+const C10_HINTS = {
+  drive: "The storm is draining Opportunity's power. Try to drive it",
+  drained: "Out of power! Let Opportunity recover",
+};
+
+// the top edge of the land: the same numbers as the clip-path in .land10 [x %, y % of the land height]
+const RIDGE10 = [
+  [0, 7],
+  [16, 4],
+  [34, 8],
+  [52, 3],
+  [70, 7],
+  [86, 4],
+  [100, 6],
+];
+
+/* the dust storm: JS creates the dust pieces (like the wind in chapter 7) */
+function buildStorm() {
+  const back = document.getElementById("storm");
+  const front = document.getElementById("dustFront");
+  const travel = Math.round(app.clientWidth * 1.2 + 220) + "px";
+  back.style.setProperty("--travel", travel);
+  front.style.setProperty("--travel", travel);
+
+  function addDust(box, kind, count, fast) {
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement("span");
+      const dur =
+        kind === "cloud" ? rand(8, 14) : fast ? rand(0.6, 1.3) : rand(0.9, 2);
+      s.className = "dust-" + kind;
+      s.style.cssText = `
+        left: ${rand(100, 120)}%;
+        top: ${rand(0, 95)}%;
+        width: ${kind === "cloud" ? rand(180, 340) : rand(40, 160)}px;
+        height: ${kind === "cloud" ? rand(70, 150) : rand(2, 5)}px;
+        --o: ${kind === "cloud" ? rand(0.2, 0.45) : rand(0.15, 0.5)};
+        --dy: ${rand(-40, 25)}px;
+        animation-duration: ${dur}s;
+        animation-delay: -${rand(0, dur)}s;`; // negative delay: already in flight at the start
+      box.appendChild(s);
+    }
+  }
+
+  addDust(back, "cloud", C10.clouds, false);
+  addDust(back, "streak", C10.streaks, false);
+  addDust(front, "cloud", C10.frontClouds, false);
+  addDust(front, "streak", C10.frontStreaks, true);
+}
+
+let chapter10Started = false;
+
+async function runChapter10() {
+  const rover = document.getElementById("rover8"); // the same rover as chapters 8 and 9
+  const flip = rover.querySelector(".rover-flip");
+  const land = document.getElementById("land10");
+  const text = document.getElementById("c10Text");
+  const hint = document.getElementById("c10Hint");
+  const controls = document.getElementById("c10Controls");
+  const leftBtn = document.getElementById("c10Left");
+  const rightBtn = document.getElementById("c10Right");
+
+  const rw = rover.offsetWidth;
+  let x = app.clientWidth - rw - C10.rightMargin; // on the right of the screen
+  let dir = -1; // last direction: 1 = right, -1 = left (it faces left at first)
+  let phase = "wait"; // "wait" -> "drive" -> "done"
+  let hintKind = null;
+  let energy = 1; // 1 = full, 0 = empty
+  let go = rand(C10.goMin, C10.goMax); // time left before the next stall
+  let stall = 0; // time left in the current stall
+  let lurch = 1; // speed multiplier of the current run
+
+  const input = bindDriveControls(leftBtn, rightBtn, () => phase === "drive");
+
+  buildStorm();
+
+  // the rover (still invisible) goes to the dusty ground, still broken
+  rover.classList.remove("driving");
+  rover.classList.add("broken");
+  rover.style.bottom = "32%"; // the top line of the new land (same as .land10 height)
+  rover.style.transformOrigin = "50% 100%"; // it tilts around its wheels
+
+  function setHint(kind) {
+    if (hintKind === kind) return;
+    hintKind = kind;
+    hint.classList.remove("show");
+    setTimeout(() => {
+      if (hintKind !== kind) return; // a newer message replaced this one
+      hint.textContent = C10_HINTS[kind];
+      hint.classList.add("show");
+    }, 350);
+  }
+  function hideHint() {
+    hintKind = null;
+    hint.classList.remove("show");
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const w = app.clientWidth;
+    const maxX = w - rw; // the rover can't leave the screen on either side
+
+    // broken movement: runs, stalls, lurches again at a random speed
+    let moving = false;
+    if (phase === "drive" && input.hold !== 0) {
+      dir = input.hold;
+      if (stall > 0) {
+        stall -= dt; // stalled: it doesn't move
+      } else {
+        moving = true;
+        x += input.hold * C10.speed * lurch * (0.3 + 0.7 * energy) * dt; // low energy = slow
+        x = Math.max(0, Math.min(maxX, x)); // both sides are blocked
+        if ((x <= 0 && input.hold === -1) || (x >= maxX && input.hold === 1))
+          moving = false;
+        go -= dt;
+        if (go <= 0) {
+          stall = rand(C10.stallMin, C10.stallMax);
+          go = rand(C10.goMin, C10.goMax);
+          lurch = rand(0.6, 1.5);
+        }
+      }
+    }
+
+    // the storm leaks the rover's energy while it moves; a little comes back while it rests
+    energy = moving
+      ? Math.max(0, energy - C10.drain * dt)
+      : Math.min(1, energy + C10.recharge * dt);
+    if (energy <= 0 && stall <= 0) {
+      stall = rand(C10.stallMax * 2, C10.stallMax * 3); // out of power: a long stall
+      energy = 0.1;
+    }
+
+    // follow the ridge of the land and tilt with its slope
+    const cx = x + rw / 2;
+    const depth = (px) =>
+      (ridgeOf(RIDGE10, (px / w) * 100) / 100) * land.offsetHeight;
+    const ty = depth(cx) + C10.sink;
+    const ang =
+      (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
+    flip.style.transform = `scaleX(${dir < 0 === C10.facesRight ? -1 : 1}) rotate(${moving ? C10.lean : 0}deg)`;
+    rover.classList.toggle("driving", moving);
+    rover.classList.toggle("drained", energy < 0.3);
+
+    if (phase === "drive") {
+      leftBtn.classList.toggle("blocked", x <= 0.5);
+      rightBtn.classList.toggle("blocked", x >= maxX - 0.5);
+      if (energy < 0.12) setHint("drained");
+      else if (energy > 0.35) setHint("drive");
+    }
+
+    // the voice ended: stop the loop
+    if (phase === "done") {
+      rover.classList.remove("driving", "drained");
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // 1. the storm fades in, then the rover appears on the right
+  await wait(C10.startDelay);
+  rover.style.opacity = 1;
+
+  // 2. the arrows and the guide message: the user can try to drive
+  await wait(C10.controlsDelay);
+  phase = "drive";
+  controls.classList.add("show");
+  setHint("drive");
+
+  // 3. the sentence and its voice (the user can keep trying to drive meanwhile)
+  await wait(C10.textDelay);
+  text.textContent = C10_TEXT;
+  text.classList.add("show");
+  await playVoice(C10_VOICE);
+
+  // 4. the voice ended: the arrows leave and continue appears
+  phase = "done";
+  input.hold = 0;
+  controls.classList.remove("show");
+  hideHint();
+  document.getElementById("continue10").classList.add("ready");
+}
+
+// chapter 9 continue -> chapter 10
 document.getElementById("continue9").addEventListener("click", () => {
-  console.log("continue 9"); // e.g. app.classList.add("chapter10");
+  if (chapter10Started) return;
+  chapter10Started = true;
+  app.classList.add("chapter10");
+  runChapter10();
+});
+
+/* ---------- chapter 11 ---------- */
+
+const C11 = {
+  fadeOut: 800, // after clicking continue: the new land rises, then the rover fades in
+  startX: 10, // where the rover appears (px from the left edge)
+  centerAt: 0.5, // where the user drives the rover first: 0 = left edge, 1 = right edge (its center)
+  speed: 150, // driving speed while an arrow is held (px per second)
+  sink: 16, // lowers the rover onto the ground (px)
+  controlsDelay: 500, // pause before the arrows appear (at the start and after the celebration)
+  textDelay: 600, // pause after the rover reaches the center, before the sentence and voice start
+  celebrateDelay: 500, // pause after the voice ends, before the celebration starts
+  hopTime: 3000, // how long the rover hops while celebrating (ms)
+  rocks: 26, // how many brown rocks on the ground
+  confetti: 130, // how many confetti pieces
+  facesRight: true, // same setting as chapters 8 and 9
+};
+
+const C11_TEXT =
+  "All the hardships weren’t in vain; Oppy found further proof that water once moved through underground fractures, along with clay minerals that formed in neutral-pH water";
+const C11_VOICE = "../voiceover/scenes/scene11.mp4";
+const C11_HINTS = {
+  center: "Drive Opportunity to the center of the screen",
+  blocked: "The way is blocked on this side. Drive to the right!",
+  exit: "Now drive Opportunity to the right",
+};
+
+// the top edge of the land: the same numbers as the clip-path in .land11 [x %, y % of the land height]
+const RIDGE11 = [
+  [0, 8],
+  [18, 5],
+  [36, 9],
+  [54, 4],
+  [72, 8],
+  [88, 5],
+  [100, 7],
+];
+
+/* brown rocks on the ground (JS creates them, like the wind in chapter 7) */
+function buildRocks(count) {
+  const land = document.getElementById("land11");
+  const palette = [
+    ["#8a5a34", "#3f2411"], // dark brown
+    ["#a06a3c", "#4d2c14"], // medium brown
+    ["#c79a6b", "#7a5230"], // light clay
+  ];
+  for (let i = 0; i < count; i++) {
+    const [hi, lo] = palette[Math.floor(Math.random() * palette.length)];
+    const w = rand(16, 46);
+    const s = document.createElement("span");
+    s.className = "rock11";
+    s.style.cssText = `
+      left: ${rand(-2, 94)}%;
+      top: ${rand(2, 78)}%;
+      width: ${w}px;
+      height: ${w * rand(0.55, 0.85)}px;
+      border-radius: ${rand(35, 60)}% ${rand(35, 60)}% ${rand(25, 45)}% ${rand(25, 45)}% / ${rand(45, 65)}% ${rand(45, 65)}% ${rand(30, 50)}% ${rand(30, 50)}%;
+      background: linear-gradient(135deg, ${hi}, ${lo});`;
+    land.appendChild(s);
+  }
+}
+
+/* confetti falls from the top and removes itself when it leaves the screen */
+function launchConfetti(count) {
+  const box = document.getElementById("confetti");
+  box.style.setProperty("--fall", app.clientHeight + 40 + "px");
+  const colors = [
+    "#ff5a2c",
+    "#ffd23f",
+    "#3bceac",
+    "#4cc9f0",
+    "#f72585",
+    "#ffffff",
+  ];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("span");
+    p.style.cssText = `
+      left: ${rand(0, 100)}%;
+      width: ${rand(6, 11)}px;
+      height: ${rand(10, 18)}px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      --dx: ${rand(-80, 80)}px;
+      --rot: ${rand(360, 1080)}deg;
+      animation-duration: ${rand(2.6, 4.8)}s;
+      animation-delay: ${rand(0, 1.4)}s;`;
+    p.addEventListener("animationend", () => p.remove());
+    box.appendChild(p);
+  }
+}
+
+/* the two arrows + the keyboard arrows: input.hold is -1, 0 or 1 while one is held */
+function bindDriveControls(leftBtn, rightBtn, isOn) {
+  const input = { hold: 0 };
+
+  function bindArrow(btn, value) {
+    btn.addEventListener("pointerdown", (e) => {
+      if (!isOn()) return;
+      e.preventDefault();
+      input.hold = value;
+      btn.setPointerCapture(e.pointerId);
+    });
+    ["pointerup", "pointercancel"].forEach((ev) =>
+      btn.addEventListener(ev, () => {
+        if (input.hold === value) input.hold = 0;
+      }),
+    );
+    btn.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  bindArrow(leftBtn, -1);
+  bindArrow(rightBtn, 1);
+
+  // keyboard (desktop)
+  window.addEventListener("keydown", (e) => {
+    if (!isOn()) return;
+    if (e.key === "ArrowLeft") input.hold = -1;
+    if (e.key === "ArrowRight") input.hold = 1;
+  });
+  window.addEventListener("keyup", (e) => {
+    if (
+      (e.key === "ArrowLeft" && input.hold === -1) ||
+      (e.key === "ArrowRight" && input.hold === 1)
+    )
+      input.hold = 0;
+  });
+
+  return input;
+}
+
+let chapter11Started = false;
+
+async function runChapter11() {
+  const rover = document.getElementById("rover8"); // the same rover as chapters 8 and 9
+  const flip = rover.querySelector(".rover-flip");
+  const land = document.getElementById("land11");
+  const text = document.getElementById("c11Text");
+  const hint = document.getElementById("c11Hint");
+  const controls = document.getElementById("c11Controls");
+  const leftBtn = document.getElementById("c11Left");
+  const rightBtn = document.getElementById("c11Right");
+
+  // chapter 10's rover leaves first (it fades out), then it is set up on the new ground
+  rover.style.opacity = 0;
+  await wait(C11.fadeOut);
+
+  const rw = rover.offsetWidth;
+  let x = C11.startX;
+  let dir = 1; // last direction: 1 = right, -1 = left
+  let phase = "wait"; // "wait" -> "toCenter" -> "locked" -> "exit" -> "done"
+  let hintKind = null;
+  let arrivedAtCenter = null;
+  const reachedCenter = new Promise((resolve) => (arrivedAtCenter = resolve));
+
+  const canDrive = () => phase === "toCenter" || phase === "exit";
+  const input = bindDriveControls(leftBtn, rightBtn, canDrive);
+
+  buildRocks(C11.rocks);
+
+  // the rover (still invisible) goes to the new ground, facing right, no longer "broken"
+  rover.classList.remove("broken", "driving");
+  rover.style.bottom = "34%"; // the top line of the new land (same as .land11 height)
+  rover.style.transformOrigin = "50% 100%"; // it tilts around its wheels
+  flip.style.transform = "none";
+
+  function setHint(kind) {
+    if (hintKind === kind) return;
+    hintKind = kind;
+    hint.classList.remove("show");
+    setTimeout(() => {
+      if (hintKind !== kind) return; // a newer message replaced this one
+      hint.textContent = C11_HINTS[kind];
+      hint.classList.add("show");
+    }, 350);
+  }
+  function hideHint() {
+    hintKind = null;
+    hint.classList.remove("show");
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    const w = app.clientWidth;
+    const centerX = w * C11.centerAt - rw / 2;
+
+    if (canDrive() && input.hold !== 0) {
+      x += input.hold * C11.speed * dt;
+      dir = input.hold;
+      if (x < 0) x = 0; // the left side is blocked
+
+      // first part: it can't go past the center
+      if (phase === "toCenter" && x >= centerX) {
+        x = centerX;
+        phase = "locked";
+        input.hold = 0;
+        arrivedAtCenter();
+      }
+    }
+
+    // follow the ridge of the land and tilt with its slope
+    const cx = x + rw / 2;
+    const depth = (px) =>
+      (ridgeOf(RIDGE11, (px / w) * 100) / 100) * land.offsetHeight;
+    const ty = depth(cx) + C11.sink;
+    const ang =
+      (Math.atan2(depth(cx + 40) - depth(cx - 40), 80) * 180) / Math.PI;
+    rover.style.transform = `translate(${x}px, ${ty}px) rotate(${ang}deg)`;
+    flip.style.transform = dir < 0 === C11.facesRight ? "scaleX(-1)" : "none";
+    rover.classList.toggle("driving", canDrive() && input.hold !== 0);
+
+    if (canDrive()) {
+      const atWall = x <= 0.5;
+      leftBtn.classList.toggle("blocked", atWall);
+      if (atWall && input.hold === -1) setHint("blocked");
+      else if (x > 30) setHint(phase === "exit" ? "exit" : "center");
+    }
+
+    // the rover left the screen on the right
+    if (phase === "exit" && x >= w) {
+      phase = "done";
+      input.hold = 0;
+      rover.style.opacity = 0;
+      controls.classList.remove("show");
+      hideHint();
+      disposeViewers("rover"); // it is off screen: free its 3D model
+      document.getElementById("continue11").classList.add("ready");
+      return; // stop the loop
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // 1. the new land rises, then the rover fades in at the left
+  await wait(C11.startDelay);
+  rover.style.opacity = 1;
+
+  // 2. the user drives the rover to the center of the screen
+  await wait(C11.controlsDelay);
+  phase = "toCenter";
+  controls.classList.add("show");
+  setHint("center");
+  await reachedCenter;
+
+  // 3. at the center: the arrows leave, the sentence and its voice start
+  controls.classList.remove("show");
+  hideHint();
+  await wait(C11.textDelay);
+  text.textContent = C11_TEXT;
+  text.classList.add("show");
+  await playVoice(C11_VOICE);
+
+  // 4. the celebration: confetti falls and the rover hops
+  await wait(C11.celebrateDelay);
+  launchConfetti(C11.confetti);
+  rover.classList.add("celebrate");
+  await wait(C11.hopTime);
+  rover.classList.remove("celebrate");
+
+  // 5. the user drives the rover to the right until it leaves the screen (the loop above handles the ending)
+  await wait(C11.controlsDelay);
+  phase = "exit";
+  controls.classList.add("show");
+  setHint("exit");
+}
+
+// chapter 10 continue -> chapter 11
+document.getElementById("continue10").addEventListener("click", () => {
+  if (chapter11Started) return;
+  chapter11Started = true;
+  app.classList.add("chapter11");
+  runChapter11();
+});
+
+document.getElementById("continue11").addEventListener("click", () => {
+  console.log("continue 11"); // e.g. app.classList.add("chapter12");
 });
 
 /* ---------- link to Mars (uses the classes from main.js) ---------- */

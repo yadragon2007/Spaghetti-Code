@@ -1467,3 +1467,311 @@ body {
     transform: translate(0, 0) rotate(0deg);
   }
 }
+
+/* ---------- chapter 10 ---------- */
+
+/* chapter 9 content leaves, the old land slides away */
+.chapter9.chapter10 #c9Text {
+  opacity: 0;
+}
+.chapter9.chapter10 #continue9 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter9.chapter10 .land9 {
+  transform: translateY(105%);
+}
+
+/* the storm: a dusty sky that fades in over the red one */
+.storm {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  background: linear-gradient(
+    to bottom,
+    #4a2a14 0%,
+    #8a5a2e 40%,
+    #c28a4c 75%,
+    #d9a566 100%
+  );
+}
+.chapter10 .storm {
+  opacity: 1;
+}
+/* a weak sun behind the dust */
+.storm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 72% 18%,
+    rgba(255, 226, 170, 0.55) 0,
+    rgba(255, 200, 120, 0.25) 60px,
+    transparent 170px
+  );
+  animation: sun-dim 5s ease-in-out infinite;
+}
+@keyframes sun-dim {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+/* gusts that darken the whole sky for a moment */
+.storm::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(60, 30, 10, 0.5);
+  opacity: 0;
+  animation: gust 6s ease-in-out infinite;
+}
+@keyframes gust {
+  0% {
+    opacity: 0.05;
+  }
+  30% {
+    opacity: 0.35;
+  }
+  55% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.05;
+  }
+}
+
+/* the dust pieces (JS creates them): they fly from the right to the left */
+.dust-streak,
+.dust-cloud {
+  position: absolute;
+  pointer-events: none;
+  animation: dust-blow linear infinite;
+}
+.dust-streak {
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(246, 208, 150, var(--o)),
+    rgba(246, 208, 150, 0)
+  );
+}
+.dust-cloud {
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(222, 170, 104, var(--o)) 0%,
+    rgba(222, 170, 104, 0) 70%
+  );
+}
+@keyframes dust-blow {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--travel) * -1 - 100%), var(--dy), 0);
+  }
+}
+
+/* dust in front of the rover */
+.dust-front {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.chapter10 .dust-front {
+  opacity: 1;
+}
+
+/* the dusty ground (the rover's bottom is set to the same 32% in JS) */
+.land10 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32%;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateY(105%);
+  transition: transform 1s ease 0.3s;
+}
+.land10::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(220, 170, 110, 0.35), transparent 60%),
+    linear-gradient(to bottom, #8d5a35 0%, #5a361d 55%, #2a170c 100%);
+  clip-path: polygon(
+    0 7%,
+    16% 4%,
+    34% 8%,
+    52% 3%,
+    70% 7%,
+    86% 4%,
+    100% 6%,
+    100% 100%,
+    0 100%
+  );
+}
+.chapter10 .land10 {
+  transform: none;
+}
+
+/* the rover is dark and weak when its energy is low */
+.rover8 .rover-model {
+  transition: filter 0.4s ease;
+}
+.rover8.drained .rover-model {
+  filter: brightness(0.65) saturate(0.8);
+}
+
+/* ---------- chapter 11 ---------- */
+
+/* chapter 9 content leaves, the old land slides away */
+.chapter9.chapter11 #c9Text {
+  opacity: 0;
+}
+.chapter9.chapter11 #continue9 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter9.chapter11 .land9 {
+  transform: translateY(105%);
+}
+
+/* chapter 10 content leaves, the storm clears */
+.chapter10.chapter11 #c10Text {
+  opacity: 0;
+}
+.chapter10.chapter11 #continue10 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.chapter10.chapter11 .land10 {
+  transform: translateY(105%);
+}
+.chapter10.chapter11 .storm,
+.chapter10.chapter11 .dust-front {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+/* the red background becomes slightly different: a warmer, dustier sky fades in over the old one */
+.mars-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    #3a1208 0%,
+    #8c2e12 35%,
+    #d0602a 70%,
+    #f0a060 100%
+  );
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.chapter11 .mars-sky::after {
+  opacity: 1;
+}
+
+/* the new land: its surface is the ::before, the rocks (JS) sit on top of it so they can poke above the edge */
+.land11 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%; /* the rover's bottom is set to the same 34% in JS */
+  z-index: 0;
+  pointer-events: none;
+  transform: translateY(105%);
+  transition: transform 1s ease 0.3s;
+}
+.land11::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #a8552b 0%, #7a3418 55%, #3a160a 100%);
+  clip-path: polygon(
+    0 8%,
+    18% 5%,
+    36% 9%,
+    54% 4%,
+    72% 8%,
+    88% 5%,
+    100% 7%,
+    100% 100%,
+    0 100%
+  );
+}
+.chapter11 .land11 {
+  transform: none;
+}
+
+/* the brown rocks (clay and minerals) */
+.rock11 {
+  position: absolute;
+  box-shadow:
+    0 3px 4px rgba(0, 0, 0, 0.5),
+    inset 2px 2px 3px rgba(255, 255, 255, 0.25),
+    inset -2px -3px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* the rover fades in on this land */
+.chapter11 .rover8 {
+  transition: opacity 0.8s ease;
+}
+
+/* the rover hops while celebrating */
+.rover8.celebrate .rover-model {
+  animation: rover-hop 0.55s ease-in-out infinite;
+}
+@keyframes rover-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+/* confetti (JS creates the pieces) */
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.confetti span {
+  position: absolute;
+  top: -24px;
+  border-radius: 2px;
+  animation: confetti-fall linear both;
+}
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(var(--dx), var(--fall), 0) rotate(var(--rot));
+  }
+}
